@@ -5,9 +5,10 @@ from selenium.webdriver.chrome.options import Options
 
 options = Options()
 options.add_argument("--headless")
-options.binary_location = '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome'
+#options.binary_location = '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome'
 
-driver = webdriver.Chrome(executable_path=os.path.abspath('chromedriver'), options=options)
+#driver = webdriver.Chrome(executable_path=os.path.abspath('chromedriver'))
+driver = webdriver.Chrome('chromedriver', options=options)
 driver.get("http://fri.uni-lj.si")
 
 for n in driver.find_elements_by_class_name('news-container-title'):
