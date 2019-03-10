@@ -10,6 +10,8 @@ conn = None
 frontier = LifoQueue()
 visited = set()
 
+# database code
+"""
 try:
     # read connection parameters
     params = config()
@@ -21,35 +23,11 @@ try:
     cur = conn.cursor()
 
     # insert into table
-    #sql = """INSERT INTO crawldb.data_type(code) VALUES(%s);"""
+    #sql = """"""INSERT INTO crawldb.data_type(code) VALUES(%s);""""""
     #cur.execute(sql, ("asd", ))
     #conn.commit()
 
-    chrome_options = Options()
-    chrome_options.headless = True
-    driver = webdriver.Chrome(options=chrome_options)
-    driver.get('http://evem.gov.si')
-    html = driver.page_source
-    driver.quit()
-    #print(html)
-    soup = BeautifulSoup(html, 'html.parser')
-    print(soup.prettify())
-    print('\n\n')
-    print(soup.title)
-    print('\n')
-    for link in soup.find_all('a'):
-        #print(link.get('href'))
-        if 'http' in str(link.get('href')) and not (str(link.get('href')) in visited) and 'gov.si' in str(link.get('href')):
-            frontier.put(link.get('href'))
-            visited.add(link.get('href'))
-
-    while not frontier.empty():
-        item = frontier.get()
-        print(item)
-
-
-
-    #fetch all
+    # fetch all
     print('\n')
     cur.execute("SELECT * FROM crawldb.data_type")
     rows = cur.fetchall()
@@ -65,3 +43,45 @@ finally:
     if conn is not None:
         conn.close()
         print('Database connection closed.')
+"""
+
+# init headless browser
+chrome_options = Options()
+chrome_options.headless = True
+driver = webdriver.Chrome(options=chrome_options)
+
+# frontier init
+frontier.put('http://evem.gov.si')
+
+while not frontier.empty():
+    # deque from LIFO
+    urlLink = frontier.get()
+    # store into visited set
+    visited.add(urlLink)
+
+    # url being processed
+    print(urlLink)
+
+    # obtain page source
+    driver.get(urlLink)
+    html_source = driver.page_source
+
+    soup = BeautifulSoup(html_source, 'html.parser')
+
+    # extract <a> tags only
+    for link in soup.find_all('a'):
+        # print(link.get('href'))
+        url = str(link.get('href'))
+        # do not store JPG, PDF, PPT, MP4
+        if 'http' in url and 'gov.si' in url and url not in visited and 'jpg' not in url and 'ppt' not in url \
+                and 'mp4' not in url and 'pdf' not in url and '.zip' not in url and '.rar' not in url and '.xml' not in url\
+                and '.doc' not in url and '@' not in url and 'linkedin' not in url and 'facebook' not in url and 'evem' in url  :
+            frontier.put(link.get('href'))
+
+driver.quit()
+
+# print the number of visited urls
+print(len(visited))
+# print visited urls
+for link in visited:
+    print(link)
