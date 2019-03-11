@@ -2,7 +2,12 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="7f11b16d-5308-4fbd-ad0c-1c7c72cd420d" name="Default" comment="">
-      <change afterPath="$PROJECT_DIR$/init_frontier.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.idea/inspectionProfiles/Project_Default.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/crawler/config.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/crawler/crawler_test.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/crawler/database.ini" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/crawler/dblib.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/WIER-1seminar.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/WIER-1seminar.iml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
@@ -17,37 +22,46 @@
       <file leaf-file-name="tutorial.py" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/tutorial.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="249">
-              <caret line="23" column="50" selection-start-line="23" selection-start-column="50" selection-end-line="23" selection-end-column="50" />
+            <state relative-caret-position="-493">
+              <caret line="28" column="50" selection-start-line="28" selection-start-column="50" selection-end-line="28" selection-end-column="50" />
               <folding>
-                <element signature="e#0#27#0" expanded="true" />
+                <element signature="e#0#9#0" expanded="true" />
               </folding>
             </state>
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="init_frontier.py" pinned="false" current-in-tab="true">
+      <file leaf-file-name="init_frontier.py" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/init_frontier.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="915">
-              <caret line="76" column="19" lean-forward="true" selection-start-line="76" selection-start-column="19" selection-end-line="76" selection-end-column="19" />
+            <state relative-caret-position="-748">
+              <caret line="4" selection-start-line="4" selection-end-line="4" selection-end-column="15" />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="dblib.py" pinned="false" current-in-tab="true">
+        <entry file="file://$PROJECT_DIR$/crawler/dblib.py">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="204">
+              <caret line="51" column="19" selection-start-line="51" selection-start-column="19" selection-end-line="51" selection-end-column="19" />
               <folding>
-                <element signature="e#0#26#0" expanded="true" />
+                <element signature="e#0#15#0" expanded="true" />
+                <element signature="e#72#530#0" />
+                <element signature="e#572#1014#0" />
+                <element signature="e#1097#1597#0" />
+                <element signature="e#1059#1709#0" />
+                <element signature="e#1765#2465#0" />
               </folding>
             </state>
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="config.py" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/config.py">
-          <provider selected="true" editor-type-id="text-editor" />
-        </entry>
-      </file>
-      <file leaf-file-name="database.ini" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/database.ini">
+      <file leaf-file-name="crawler_test.py" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/crawler/crawler_test.py">
           <provider selected="true" editor-type-id="text-editor">
             <state relative-caret-position="68">
-              <caret line="4" column="14" selection-start-line="4" selection-start-column="14" selection-end-line="4" selection-end-column="14" />
+              <caret line="4" column="61" selection-start-line="4" selection-start-column="61" selection-end-line="4" selection-end-column="61" />
             </state>
           </provider>
         </entry>
@@ -62,6 +76,7 @@
     </option>
   </component>
   <component name="Git.Settings">
+    <option name="UPDATE_TYPE" value="MERGE" />
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
   </component>
   <component name="IdeDocumentHistory">
@@ -71,12 +86,15 @@
         <option value="$PROJECT_DIR$/test-scripts/selenium.py" />
         <option value="$PROJECT_DIR$/test-scripts/selenium-test.py" />
         <option value="$PROJECT_DIR$/init_frontier.py" />
+        <option value="$PROJECT_DIR$/crawler/crawldb.py" />
+        <option value="$PROJECT_DIR$/crawler/dblib.py" />
+        <option value="$PROJECT_DIR$/crawler/crawler_test.py" />
       </list>
     </option>
   </component>
   <component name="ProjectFrameBounds" extendedState="6">
-    <option name="x" value="100" />
-    <option name="y" value="20" />
+    <option name="x" value="15" />
+    <option name="y" value="-8" />
     <option name="width" value="1400" />
     <option name="height" value="820" />
   </component>
@@ -86,7 +104,6 @@
       <foldersAlwaysOnTop value="true" />
     </navigator>
     <panes>
-      <pane id="Scope" />
       <pane id="ProjectPane">
         <subPane>
           <expand>
@@ -97,12 +114,13 @@
             <path>
               <item name="WIER-1seminar" type="b2602c69:ProjectViewProjectNode" />
               <item name="WIER-1seminar" type="462c0819:PsiDirectoryNode" />
-              <item name="test-scripts" type="462c0819:PsiDirectoryNode" />
+              <item name="crawler" type="462c0819:PsiDirectoryNode" />
             </path>
           </expand>
           <select />
         </subPane>
       </pane>
+      <pane id="Scope" />
     </panes>
   </component>
   <component name="PropertiesComponent">
@@ -110,6 +128,7 @@
   </component>
   <component name="RecentsManager">
     <key name="CopyFile.RECENT_KEYS">
+      <recent name="C:\FRI\MAG\2. letnik\Ekstrakcija podatkov\1. seminarska\WIER-1seminar\crawler" />
       <recent name="C:\FRI\MAG\2. letnik\Ekstrakcija podatkov\1. seminarska\WIER-1seminar\drivers" />
     </key>
   </component>
@@ -125,7 +144,7 @@
       </list>
     </option>
   </component>
-  <component name="RunManager" selected="Python.init_frontier">
+  <component name="RunManager" selected="Python.crawler_test">
     <configuration name="Unnamed" type="PythonConfigurationType" factoryName="Python">
       <module name="WIER-1seminar" />
       <option name="INTERPRETER_OPTIONS" value="" />
@@ -139,6 +158,42 @@
       <option name="ADD_CONTENT_ROOTS" value="true" />
       <option name="ADD_SOURCE_ROOTS" value="true" />
       <option name="SCRIPT_NAME" value="" />
+      <option name="PARAMETERS" value="" />
+      <option name="SHOW_COMMAND_LINE" value="false" />
+      <option name="EMULATE_TERMINAL" value="false" />
+      <option name="MODULE_MODE" value="false" />
+    </configuration>
+    <configuration name="crawler_test" type="PythonConfigurationType" factoryName="Python" temporary="true">
+      <module name="WIER-1seminar" />
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <envs>
+        <env name="PYTHONUNBUFFERED" value="1" />
+      </envs>
+      <option name="SDK_HOME" value="" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/crawler" />
+      <option name="IS_MODULE_SDK" value="true" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/crawler/crawler_test.py" />
+      <option name="PARAMETERS" value="" />
+      <option name="SHOW_COMMAND_LINE" value="false" />
+      <option name="EMULATE_TERMINAL" value="false" />
+      <option name="MODULE_MODE" value="false" />
+    </configuration>
+    <configuration name="dblib" type="PythonConfigurationType" factoryName="Python" temporary="true">
+      <module name="WIER-1seminar" />
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <envs>
+        <env name="PYTHONUNBUFFERED" value="1" />
+      </envs>
+      <option name="SDK_HOME" value="" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/crawler" />
+      <option name="IS_MODULE_SDK" value="true" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/crawler/dblib.py" />
       <option name="PARAMETERS" value="" />
       <option name="SHOW_COMMAND_LINE" value="false" />
       <option name="EMULATE_TERMINAL" value="false" />
@@ -180,24 +235,6 @@
       <option name="EMULATE_TERMINAL" value="false" />
       <option name="MODULE_MODE" value="false" />
     </configuration>
-    <configuration name="selenium" type="PythonConfigurationType" factoryName="Python" temporary="true">
-      <module name="WIER-1seminar" />
-      <option name="INTERPRETER_OPTIONS" value="" />
-      <option name="PARENT_ENVS" value="true" />
-      <envs>
-        <env name="PYTHONUNBUFFERED" value="1" />
-      </envs>
-      <option name="SDK_HOME" value="" />
-      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/test-scripts" />
-      <option name="IS_MODULE_SDK" value="true" />
-      <option name="ADD_CONTENT_ROOTS" value="true" />
-      <option name="ADD_SOURCE_ROOTS" value="true" />
-      <option name="SCRIPT_NAME" value="C:\FRI\MAG\2. letnik\Ekstrakcija podatkov\1. seminarska\WIER-1seminar\test-scripts\selenium-test.py" />
-      <option name="PARAMETERS" value="" />
-      <option name="SHOW_COMMAND_LINE" value="false" />
-      <option name="EMULATE_TERMINAL" value="false" />
-      <option name="MODULE_MODE" value="false" />
-    </configuration>
     <configuration name="tutorial" type="PythonConfigurationType" factoryName="Python" temporary="true">
       <module name="WIER-1seminar" />
       <option name="INTERPRETER_OPTIONS" value="" />
@@ -218,17 +255,19 @@
     </configuration>
     <list>
       <item itemvalue="Python.Unnamed" />
-      <item itemvalue="Python.selenium" />
       <item itemvalue="Python.selenium-test" />
       <item itemvalue="Python.tutorial" />
       <item itemvalue="Python.init_frontier" />
+      <item itemvalue="Python.dblib" />
+      <item itemvalue="Python.crawler_test" />
     </list>
     <recent_temporary>
       <list>
+        <item itemvalue="Python.crawler_test" />
+        <item itemvalue="Python.dblib" />
         <item itemvalue="Python.init_frontier" />
         <item itemvalue="Python.tutorial" />
         <item itemvalue="Python.selenium-test" />
-        <item itemvalue="Python.selenium" />
       </list>
     </recent_temporary>
   </component>
@@ -257,7 +296,14 @@
       <option name="project" value="LOCAL" />
       <updated>1552141980514</updated>
     </task>
-    <option name="localTasksCounter" value="3" />
+    <task id="LOCAL-00003" summary="added init frontier for seed pages">
+      <created>1552237874092</created>
+      <option name="number" value="00003" />
+      <option name="presentableId" value="LOCAL-00003" />
+      <option name="project" value="LOCAL" />
+      <updated>1552237874094</updated>
+    </task>
+    <option name="localTasksCounter" value="4" />
     <servers />
   </component>
   <component name="ToolWindowManager">
@@ -269,7 +315,7 @@
       <window_info anchor="bottom" id="Event Log" order="7" side_tool="true" />
       <window_info anchor="bottom" id="Version Control" order="7" />
       <window_info anchor="bottom" id="Python Console" order="7" weight="0.3292683" />
-      <window_info active="true" anchor="bottom" id="Run" order="2" visible="true" weight="0.2710027" />
+      <window_info active="true" anchor="bottom" id="Run" order="2" visible="true" weight="0.24661246" />
       <window_info id="Structure" order="1" side_tool="true" weight="0.25" />
       <window_info anchor="bottom" id="Terminal" order="7" weight="0.24525745" />
       <window_info id="Favorites" order="2" side_tool="true" />
@@ -293,11 +339,12 @@
   <component name="VcsManagerConfiguration">
     <MESSAGE value="added selenium test with chrome" />
     <MESSAGE value="added selenium example" />
-    <option name="LAST_COMMIT_MESSAGE" value="added selenium example" />
+    <MESSAGE value="added init frontier for seed pages" />
+    <option name="LAST_COMMIT_MESSAGE" value="added init frontier for seed pages" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
-      <option name="time" value="7" />
+      <option name="time" value="9" />
     </breakpoint-manager>
     <watches-manager>
       <configuration name="PythonConfigurationType">
@@ -325,6 +372,30 @@
     </expressions>
   </component>
   <component name="editorHistoryManager">
+    <entry file="file://$PROJECT_DIR$/tutorial.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="476">
+          <caret line="28" column="50" selection-start-line="28" selection-start-column="50" selection-end-line="28" selection-end-column="50" />
+          <folding>
+            <element signature="e#0#9#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/database.ini">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="68">
+          <caret line="4" column="14" selection-start-line="4" selection-start-column="14" selection-end-line="4" selection-end-column="14" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/init_frontier.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="1292">
+          <caret line="76" column="19" lean-forward="true" selection-start-line="76" selection-start-column="19" selection-end-line="76" selection-end-column="19" />
+        </state>
+      </provider>
+    </entry>
     <entry file="file://$PROJECT_DIR$/test-scripts/selenium-test.py">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="323">
@@ -367,7 +438,17 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/config.py">
+    <entry file="file://$PROJECT_DIR$/tutorial.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="-493">
+          <caret line="28" column="50" selection-start-line="28" selection-start-column="50" selection-end-line="28" selection-end-column="50" />
+          <folding>
+            <element signature="e#0#9#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/crawler/config.py">
       <provider selected="true" editor-type-id="text-editor" />
     </entry>
     <entry file="file://$PROJECT_DIR$/database.ini">
@@ -377,22 +458,34 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/tutorial.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="249">
-          <caret line="23" column="50" selection-start-line="23" selection-start-column="50" selection-end-line="23" selection-end-column="50" />
-          <folding>
-            <element signature="e#0#27#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
+    <entry file="file://$PROJECT_DIR$/crawler/database.ini">
+      <provider selected="true" editor-type-id="text-editor" />
     </entry>
     <entry file="file://$PROJECT_DIR$/init_frontier.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="915">
-          <caret line="76" column="19" lean-forward="true" selection-start-line="76" selection-start-column="19" selection-end-line="76" selection-end-column="19" />
+        <state relative-caret-position="-748">
+          <caret line="4" selection-start-line="4" selection-end-line="4" selection-end-column="15" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/crawler/crawler_test.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="68">
+          <caret line="4" column="61" selection-start-line="4" selection-start-column="61" selection-end-line="4" selection-end-column="61" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/crawler/dblib.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="204">
+          <caret line="51" column="19" selection-start-line="51" selection-start-column="19" selection-end-line="51" selection-end-column="19" />
           <folding>
-            <element signature="e#0#26#0" expanded="true" />
+            <element signature="e#0#15#0" expanded="true" />
+            <element signature="e#72#530#0" />
+            <element signature="e#572#1014#0" />
+            <element signature="e#1097#1597#0" />
+            <element signature="e#1059#1709#0" />
+            <element signature="e#1765#2465#0" />
           </folding>
         </state>
       </provider>
