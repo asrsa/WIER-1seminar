@@ -14,7 +14,6 @@ def siteID(domain, conn):
     sql = """SELECT id FROM crawldb.site WHERE domain=%s"""
     cur.execute(sql, (domain, ))
     id = cur.fetchone()[0]
-
     return id
 
 
@@ -30,6 +29,7 @@ def processFrontier(seed):
     chrome_options = Options()
     chrome_options.headless = True
     driver = webdriver.Chrome(options=chrome_options)
+    # wait 3 secs for web to load
     driver.implicitly_wait(3)
     conn = None
 
