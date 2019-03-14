@@ -1,10 +1,8 @@
 import os
 from queue import LifoQueue
 
-import psycopg2
 import wget as wget
 
-from config import config
 from selenium.webdriver.chrome.options import Options
 from selenium import webdriver
 from bs4 import BeautifulSoup

@@ -1,14 +1,12 @@
-# list frontier [x,y,z]
-# init_frontier(x)
+import processFrontier
 
 # init domainList ['gov.si', etc.]
 # media ['.pdf', etc.]
 
-# crawler IN SAME DOMAIN
-#   get frontier, set:
-#                 HTML  če je htmlContetn not null -> init frontier
-#                 BINARY ce je null -> download binary and insert int sql
-#   FOREACH LNKS <a>
-#       link in domainList  [opt: binary in media list]
-#       add page to frontier: returning ID  (call init_frontier(url))
-#       add Links from page - to page (currPageId -> returning id page)
+seedPagesTmp = ['https://e-uprava.gov.si', 'http://evem.gov.si',
+             'https://podatki.gov.si', 'http://e-prostor.gov.si']
+
+seedPages = ['https://e-uprava.gov.si']
+
+for seed in seedPages:
+    processFrontier.processFrontier(seed)
