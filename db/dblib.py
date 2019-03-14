@@ -1,7 +1,6 @@
 import psycopg2
 import datetime
-
-from config import config
+from db.config import config
 
 __all__ = ["getFrontier", "getSiteId", "insertPage", "insertLink",
            "getPageId"]

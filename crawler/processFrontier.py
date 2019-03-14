@@ -1,9 +1,8 @@
 import hashlib
-from builtins import print
 from selenium.webdriver.chrome.options import Options
 from selenium import webdriver
-from dblib import *
-from config import config
+from db.dblib import *
+from db.config import config
 from urllib.parse import urlparse
 import psycopg2
 import requests
@@ -72,7 +71,7 @@ def processFrontier(seed):
         driver.close()
 
         # TODO: is page duplicate? enter DUPLICATE
-        #  Duplicate po page content? Ker page url ima na nivoju baze setan unique_url_index
+        #  Duplicate po page content? Ker page url ima na nivoju baze nastavlen unique_url_index
         sql = """select hash from crawldb.page where hash=%s;"""
         cur.execute(sql, (seed, ))
         # ce najde vsaj en record v tabeli, pomeni, da page ze obstaja -> duplicat
@@ -81,7 +80,7 @@ def processFrontier(seed):
         else:
             pageTypeCode = "DUPLICATE"
 
-        # insert into table
+        # insert into table | throws IntegrityError if url already exists
         sql = """INSERT INTO crawldb.page(site_id, page_type_code, url, html_content, http_status_code, accessed_time, hash) 
                 VALUES(%s, %s, %s, %s, %s, %s, %s);"""
         cur.execute(sql, (siteID(domain, conn), pageTypeCode, seed, htmlContent, response.status_code, datetime.datetime.now(), htmlHash))
@@ -90,7 +89,7 @@ def processFrontier(seed):
         # close the communication with the PostgreSQL
         cur.close()
     except (Exception, psycopg2.IntegrityError):
-        print('Url ze obstaja v bazi!')
+        print('Url already exists in table PAGE!')
     except (Exception, psycopg2.DatabaseError) as error:
         print(error)
     finally:
