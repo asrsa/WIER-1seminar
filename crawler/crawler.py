@@ -1,4 +1,5 @@
 import psycopg2
+from processFrontier import processFrontier
 from bs4 import BeautifulSoup
 from db.config import config
 from processBinary import processBinaryData
@@ -35,7 +36,6 @@ def processSeed():
 
             # call funtion to process binary data type
             processBinaryData()
-
         else:
             # html data
             sql = """update crawldb.page set page_type_code=%s where site_id=%s"""
@@ -44,7 +44,6 @@ def processSeed():
 
             # beautify html content
             rawHtml = BeautifulSoup(str(seedData[2]), 'html.parser')
-            # print(rawHtml)
 
             # extract links <a href ... >
             for link in rawHtml.find_all('a'):
@@ -52,9 +51,12 @@ def processSeed():
                 url = str(link.get('href'))
 
                 # transform /si -> https://e-uprava.gov.si/si
-                if str(seedData[1]) not in url:
+                if 'http' not in url:
                     url = str(seedData[1]) + url
-                print(url)
+                # print(url)
+
+                # add url to frontier
+                processFrontier(url)
 
     except (Exception, psycopg2.DatabaseError) as error:
         print(error)

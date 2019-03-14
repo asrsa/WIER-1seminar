@@ -1,10 +1,12 @@
+import time
+
 import psycopg2
-import processFrontier
 from crawler import processSeed
 from db.config import config
+from processFrontier import processFrontier
 
 seedPagesTmp = ['https://e-uprava.gov.si', 'http://evem.gov.si',
-             'https://podatki.gov.si', 'http://e-prostor.gov.si']
+                'https://podatki.gov.si', 'http://e-prostor.gov.si']
 seedPages = ['https://e-uprava.gov.si']
 conn = None
 
@@ -13,7 +15,7 @@ includeBinary = ['.pdf', '.doc', '.ppt', '.jpg', '.png']
 
 # init frontier
 for seed in seedPages:
-    processFrontier.processFrontier(seed)
+    processFrontier(seed)
 print('Init frontier done!')
 
 seedQueueHasSeeds = True
@@ -30,6 +32,7 @@ while seedQueueHasSeeds:
         else:
             # 'poll' first seed and process it
             processSeed()
+        time.sleep(1)
 
     except (Exception, psycopg2.DatabaseError) as error:
         print(error)

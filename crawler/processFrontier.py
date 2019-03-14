@@ -1,4 +1,5 @@
 import hashlib
+
 from selenium.webdriver.chrome.options import Options
 from selenium import webdriver
 from db.dblib import *
@@ -64,11 +65,13 @@ def processFrontier(seed):
 
         htmlContent = None
         htmlHash = ''
+        # print('waiting for driver to obtain site content')
         if "html" in response.headers['content-type']:
             driver.get(seed)
             htmlContent = driver.page_source
             htmlHash = hashlib.md5(htmlContent.encode()).hexdigest()
         driver.close()
+        # print('site content obtained')
 
         # TODO: is page duplicate? enter DUPLICATE
         #  Duplicate po page content? Ker page url ima na nivoju baze nastavlen unique_url_index
