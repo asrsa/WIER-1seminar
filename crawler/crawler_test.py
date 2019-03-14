@@ -1,7 +1,7 @@
 from dblib import *
 
-print('Frontier(site id): ' + str(getFrontier()[0][0]))
-print('Site id(by domain): ' + str(getSiteId('podatki.gov.si')))
+# print('Frontier(site id): ' + str(getFrontier()[0][0]))
+# print('Site id(by domain): ' + str(getSiteId('podatki.gov.si')))
 print('Page id(by url): ' + str(getPageId('http://evem.gov.si')))
 
 pageData = ['podatki.gov.si', 'FRONTIER', 'podatki.gov.si/test/page', '<html></html>', 200]
