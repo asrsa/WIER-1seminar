@@ -3,6 +3,7 @@ from processFrontier import processFrontier
 from bs4 import BeautifulSoup
 from db.config import config
 from processBinary import processBinaryData
+from processImg import processImg
 
 # TODO crawler implementation
 #   get frontier, set:
@@ -45,6 +46,8 @@ def processSeed():
             # beautify html content
             rawHtml = BeautifulSoup(str(seedData[2]), 'html.parser')
 
+            # should there be single foor loop with 2 conditions
+            # for <a href> and <img>?
             # extract links <a href ... >
             for link in rawHtml.find_all('a'):
                 # print(link.get('href'))
@@ -57,6 +60,14 @@ def processSeed():
 
                 # add url to frontier
                 processFrontier(url)
+                
+            # extract images from rawHtml
+            # let's assume there is FULL image URL in img tag
+            # seedData[0] is current_page_id
+            for imageSrc in rawHtml.find_all('img')
+                # process image using processImg function
+                processImg(imageScr, seedData[0])
+            
 
     except (Exception, psycopg2.DatabaseError) as error:
         print(error)
