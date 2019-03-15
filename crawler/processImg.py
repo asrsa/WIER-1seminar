@@ -1,5 +1,5 @@
 # TODO: reimplement from code below; instead readin binary image from physical file located on disk, read from URL
-
+import psycopg2
 from PIL import Image
 from db.config import config
 import requests
@@ -13,7 +13,7 @@ import datetime
 # accessed_date -> datetime.datetime.now()
 
 def processImg(seed, pageID):
-  read image object from given URL
+  # read image object from given URL
   imageObject = Image.open(requests.get(seed, stream=True).raw)
   conn = None
   try:

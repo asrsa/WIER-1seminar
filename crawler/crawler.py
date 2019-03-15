@@ -30,13 +30,13 @@ def processSeed():
 
         # TODO check HTML content
         if seedData[2] is None:
-            # binar data
+            # binary data
             sql = """update crawldb.page set page_type_code=%s, html_content=%s where site_id=%s"""
             cur.execute(sql, ('BINARY', None, seedData[0]))
             conn.commit()
 
             # call funtion to process binary data type
-            processBinaryData()
+            # processBinaryData()
         else:
             # html data
             sql = """update crawldb.page set page_type_code=%s where site_id=%s"""
@@ -64,9 +64,9 @@ def processSeed():
             # extract images from rawHtml
             # let's assume there is FULL image URL in img tag
             # seedData[0] is current_page_id
-            for imageSrc in rawHtml.find_all('img')
+            for imageSrc in rawHtml.find_all('img'):
                 # process image using processImg function
-                processImg(imageScr, seedData[0])
+                processImg(imageSrc, seedData[0])
             
 
     except (Exception, psycopg2.DatabaseError) as error:

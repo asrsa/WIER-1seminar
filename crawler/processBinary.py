@@ -1,3 +1,5 @@
+import psycopg2
+
 from db.config import config
 
 
@@ -23,10 +25,11 @@ def processBinaryData(seed, seedID):
         
       # obtaing data_type_code from binary file
       sql = """select code from crawldb.data_type where code like %s"""
-      cur.execute(sl, (binaryObject.split('.')[1].upper(), ))
+      cur.execute(sql, (binaryObject.split('.')[1].upper(), ))
       extension = cur.fetchone()
       if extension is None:
         # extension not recognized -> raise error?
+        print("error")
       
         
       sql = """INSERT INTO crawldb.page_data(pageID, data_type_code, data)

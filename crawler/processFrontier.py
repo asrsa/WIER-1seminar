@@ -31,7 +31,7 @@ def processFrontier(seed):
     chrome_options.headless = True
     driver = webdriver.Chrome(options=chrome_options)
     # wait 3 secs for web to load
-    driver.implicitly_wait(3)
+    driver.implicitly_wait(1)
     conn = None
 
     try:
@@ -65,18 +65,17 @@ def processFrontier(seed):
 
         htmlContent = None
         htmlHash = ''
-        # print('waiting for driver to obtain site content')
         if "html" in response.headers['content-type']:
             driver.get(seed)
+
             htmlContent = driver.page_source
             htmlHash = hashlib.md5(htmlContent.encode()).hexdigest()
         driver.close()
-        # print('site content obtained')
 
-        # TODO: is page duplicate? enter DUPLICATE
+        # is page duplicate? enter DUPLICATE
         #  Duplicate po page content? Ker page url ima na nivoju baze nastavlen unique_url_index
         sql = """select hash from crawldb.page where hash=%s;"""
-        cur.execute(sql, (seed, ))
+        cur.execute(sql, (htmlHash, ))
         # ce najde vsaj en record v tabeli, pomeni, da page ze obstaja -> duplicat
         if cur.fetchone() is None:
             pageTypeCode = "FRONTIER"
