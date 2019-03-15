@@ -30,10 +30,13 @@ def processFrontier(seed):
     chrome_options = Options()
     chrome_options.headless = True
     driver = webdriver.Chrome(options=chrome_options)
+
+
     # wait 3 secs for web to load
-    driver.implicitly_wait(1)
+    driver.implicitly_wait(3)
     conn = None
 
+    nextPageId = None
     try:
         params = config()
         conn = psycopg2.connect(**params)
@@ -84,9 +87,12 @@ def processFrontier(seed):
 
         # insert into table | throws IntegrityError if url already exists
         sql = """INSERT INTO crawldb.page(site_id, page_type_code, url, html_content, http_status_code, accessed_time, hash) 
-                VALUES(%s, %s, %s, %s, %s, %s, %s);"""
+                VALUES(%s, %s, %s, %s, %s, %s, %s) RETURNING id;"""
         cur.execute(sql, (siteID(domain, conn), pageTypeCode, seed, htmlContent, response.status_code, datetime.datetime.now(), htmlHash))
+        nextPageId = cur.fetchone()[0]
         conn.commit()
+
+
 
         # close the communication with the PostgreSQL
         cur.close()
@@ -97,3 +103,5 @@ def processFrontier(seed):
     finally:
         if conn is not None:
             conn.close()
+
+    return nextPageId

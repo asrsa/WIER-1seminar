@@ -112,3 +112,4 @@ def insertLink(link1, link2):
     finally:
         if conn is not None:
             conn.close()
+

@@ -5,6 +5,8 @@ from db.config import config
 from processBinary import processBinaryData
 from processImg import processImg
 
+from db.dblib import *
+
 # TODO crawler implementation
 #   get frontier, set:
 #                 HTML  če je htmlContetn not null -> init frontier
@@ -24,8 +26,9 @@ def processSeed():
 
         # create a cursor
         cur = conn.cursor()
-        sql = """select site_id, url, html_content, hash from crawldb.page where page_type_code=%s"""
+        sql = """select site_id, url, html_content, hash, id from crawldb.page where page_type_code=%s"""
         cur.execute(sql, ('FRONTIER', ))
+
         seedData = cur.fetchone()
 
         # TODO check HTML content
@@ -59,8 +62,14 @@ def processSeed():
                 # print(url)
 
                 # add url to frontier
-                processFrontier(url)
-                
+                nextPageId = processFrontier(url)
+                currPageId = seedData[4]
+
+                if nextPageId is not None:
+                    insertLink(currPageId, nextPageId)
+                else:
+                    insertLink(currPageId, currPageId)
+
             # extract images from rawHtml
             # let's assume there is FULL image URL in img tag
             # seedData[0] is current_page_id
