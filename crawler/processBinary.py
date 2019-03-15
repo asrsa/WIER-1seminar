@@ -24,7 +24,7 @@ def processBinaryData(seed, seedID):
       # obtaing data_type_code from binary file
       sql = """select code from crawldb.data_type where code like %s"""
       cur.execute(sl, (binaryObject.split('.')[1].upper(), ))
-      extension = conn.fetchone()
+      extension = cur.fetchone()
       if extension is None:
         # extension not recognized -> raise error?
       
