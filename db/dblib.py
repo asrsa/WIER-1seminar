@@ -38,7 +38,7 @@ def getSiteId(domain):
 
         sql = """SELECT id FROM crawldb.site WHERE domain=%s"""
         cur.execute(sql, (domain,))
-        return cur.fetchone()[0]
+        return cur.fetchone()
 
         cur.close()
 

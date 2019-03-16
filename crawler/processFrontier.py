@@ -1,5 +1,4 @@
 import hashlib
-
 from selenium.webdriver.chrome.options import Options
 from selenium import webdriver
 from db.dblib import *
@@ -28,8 +27,10 @@ def getSitemap(robots):
 def processFrontier(seed):
     print('Processing ' + seed)
     chrome_options = Options()
+    chrome_options.add_argument('--disable-browser-side-navigation')
     chrome_options.headless = True
     driver = webdriver.Chrome(options=chrome_options)
+    driver.set_page_load_timeout(20)                        # wait 20 seconds, move to next url after timeout
 
 
     # wait 3 secs for web to load
@@ -57,12 +58,18 @@ def processFrontier(seed):
             if responseRobots.status_code == 200:
                 robots = responseRobots.text
                 sitemap = getSitemap(robots)
-
             sql = """INSERT INTO crawldb.site(domain, robots_content, sitemap_content) 
                         SELECT %s, %s, %s
                         WHERE NOT EXISTS (
                         SELECT 1 FROM crawldb.site WHERE domain=%s
                     );"""
+
+            # to avoid 'A string literal cannot contain NUL (0x00) characters' exception from postgresql IntegrityError
+            # replace all '\x00' characters to '' (blank) in robots and site variable
+            if robots is not None:
+                robots = robots.replace('\x00', '')
+            if sitemap is not None:
+                sitemap = sitemap.replace('\x00', '')
             cur.execute(sql, (domain, robots, sitemap, domain))
             conn.commit()
 
@@ -76,7 +83,7 @@ def processFrontier(seed):
         driver.close()
 
         # is page duplicate? enter DUPLICATE
-        #  Duplicate po page content? Ker page url ima na nivoju baze nastavlen unique_url_index
+        # Duplicate po page content? Ker page url ima na nivoju baze nastavlen unique_url_index
         sql = """select hash from crawldb.page where hash=%s;"""
         cur.execute(sql, (htmlHash, ))
         # ce najde vsaj en record v tabeli, pomeni, da page ze obstaja -> duplicat
@@ -84,7 +91,6 @@ def processFrontier(seed):
             pageTypeCode = "FRONTIER"
         else:
             pageTypeCode = "DUPLICATE"
-
         # insert into table | throws IntegrityError if url already exists
         sql = """INSERT INTO crawldb.page(site_id, page_type_code, url, html_content, http_status_code, accessed_time, hash) 
                 VALUES(%s, %s, %s, %s, %s, %s, %s) RETURNING id;"""
@@ -92,12 +98,10 @@ def processFrontier(seed):
         nextPageId = cur.fetchone()[0]
         conn.commit()
 
-
-
         # close the communication with the PostgreSQL
         cur.close()
-    except (Exception, psycopg2.IntegrityError):
-        print('Url already exists in table PAGE!')
+    except (Exception, psycopg2.IntegrityError) as error:
+        print(error)
     except (Exception, psycopg2.DatabaseError) as error:
         print(error)
     finally:

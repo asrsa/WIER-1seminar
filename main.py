@@ -8,10 +8,16 @@ from processFrontier import processFrontier
 seedPagesTmp = ['https://e-uprava.gov.si', 'http://evem.gov.si',
                 'https://podatki.gov.si', 'http://e-prostor.gov.si']
 seedPages = ['https://e-uprava.gov.si']
+
+# test for images extraction. Use thi url to obtain background image from airbnb site.
+# uncomment and run this to test saving images into DB. There are 3 images stored into DB.
+# also make sure that code that is extracting <a href> in comment. Only process home page
+# seedPages = ['https://www.airbnb.com/']
+
 conn = None
 
 # init domainList ['gov.si', etc.]
-includeBinary = ['.pdf', '.doc', '.ppt', '.jpg', '.png']
+includeBinary = ['.pdf', '.doc', '.ppt']
 
 # init frontier
 for seed in seedPages:

@@ -26,16 +26,22 @@ def processSeed():
 
         # create a cursor
         cur = conn.cursor()
-        sql = """select site_id, url, html_content, hash, id from crawldb.page where page_type_code=%s"""
+        sql = """select id, site_id, url, html_content, hash, id from crawldb.page where page_type_code=%s"""
         cur.execute(sql, ('FRONTIER', ))
-
         seedData = cur.fetchone()
 
+        sql = """select domain from crawldb.site where id=%s"""
+        cur.execute(sql, (seedData[1], ))
+        seedDomain = cur.fetchone()
+        if seedDomain is not None:
+            seedDomain = 'https://' + seedDomain[0]
+        # print(seedDomain)
+
         # TODO check HTML content
-        if seedData[2] is None:
+        if seedData[3] is None:
             # binary data
             sql = """update crawldb.page set page_type_code=%s, html_content=%s where site_id=%s"""
-            cur.execute(sql, ('BINARY', None, seedData[0]))
+            cur.execute(sql, ('BINARY', None, seedData[1]))
             conn.commit()
 
             # call funtion to process binary data type
@@ -43,11 +49,22 @@ def processSeed():
         else:
             # html data
             sql = """update crawldb.page set page_type_code=%s where site_id=%s"""
-            cur.execute(sql, ('HTML', seedData[0]))
+            cur.execute(sql, ('HTML', seedData[1]))
             conn.commit()
 
             # beautify html content
-            rawHtml = BeautifulSoup(str(seedData[2]), 'html.parser')
+            rawHtml = BeautifulSoup(str(seedData[3]), 'html.parser')
+
+            # find images first, otherwise cralwer will process fist all the links in the forntier
+            # -> images will come at end (might never be extracted at all)
+
+            # extract images from rawHtml | seedData[0] is current_page_id
+            # let's assume there is FULL image URL in img tag
+            for imageObject in rawHtml.find_all('img'):
+                imageSrc = str(imageObject.get('src'))
+                # print(imageSrc)
+                # process image using processImg function
+                processImg(imageSrc, seedData[0], seedDomain)
 
             # should there be single foor loop with 2 conditions
             # for <a href> and <img>?
@@ -58,25 +75,17 @@ def processSeed():
 
                 # transform /si -> https://e-uprava.gov.si/si
                 if 'http' not in url:
-                    url = str(seedData[1]) + url
+                    url = str(seedData[2]) + url
                 # print(url)
 
                 # add url to frontier
                 nextPageId = processFrontier(url)
-                currPageId = seedData[4]
+                currPageId = seedData[5]
 
                 if nextPageId is not None:
                     insertLink(currPageId, nextPageId)
                 else:
                     insertLink(currPageId, currPageId)
-
-            # extract images from rawHtml
-            # let's assume there is FULL image URL in img tag
-            # seedData[0] is current_page_id
-            for imageSrc in rawHtml.find_all('img'):
-                # process image using processImg function
-                processImg(imageSrc, seedData[0])
-            
 
     except (Exception, psycopg2.DatabaseError) as error:
         print(error)
