@@ -1,4 +1,6 @@
 import hashlib
+
+from selenium.common.exceptions import WebDriverException, TimeoutException
 from selenium.webdriver.chrome.options import Options
 from selenium import webdriver
 from db.dblib import *
@@ -100,10 +102,15 @@ def processFrontier(seed):
 
         # close the communication with the PostgreSQL
         cur.close()
+    except (WebDriverException, TimeoutException) as error:
+        print(error)
+        return None
     except (Exception, psycopg2.IntegrityError) as error:
         print(error)
+        return None
     except (Exception, psycopg2.DatabaseError) as error:
         print(error)
+        return None
     finally:
         if conn is not None:
             conn.close()

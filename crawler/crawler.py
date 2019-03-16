@@ -44,8 +44,8 @@ def processSeed():
             cur.execute(sql, ('BINARY', None, seedData[1]))
             conn.commit()
 
-            # call funtion to process binary data type
-            # processBinaryData()
+            # call function to process binary data type
+            processBinaryData(seedData[2], seedData[0])
         else:
             # html data
             sql = """update crawldb.page set page_type_code=%s where site_id=%s"""
