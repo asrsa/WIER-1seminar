@@ -7,16 +7,8 @@ from db.config import config
 import requests
 import datetime
 
-# seed -> current page URL
-# seedID -> current pageID
-# data -> retrieved image from url and converted to bytea type and stored into DB
-# filename -> extract using urlparse
-# TODO content_type? Wtf would that be? Image extension?
-# content_type ->
-# accessed_date ->datetime.datetime.now()
 
-
-def processImg(seed, seedID, domain):
+def processImg(seed, seedID):
     conn = None
     try:
         # calculate image_name
@@ -25,12 +17,6 @@ def processImg(seed, seedID, domain):
 
         # content type
         imageContentType = 'unknown'
-
-        # TODO: fix seed urls? or just skip?
-        # /.imaging/stk/euprava/medium/dam/eUprava2-multimedia/Slike-razno/Kazenske-tocke/jcr:content/Kazenske%20tocke.png.2019-03-13-14-56-26.png
-        # should be https://e-uprava.gov.si/.imaging/stk/euprava/medium/dam/eUprava2-multimedia/Slike-razno/Kazenske-tocke/jcr:content/Kazenske%20tocke.png.2019-03-13-14-56-26.png
-        if 'http' not in seed:
-            seed = str(domain) + str(seed)
 
         # imageObject = Image.open(requests.get(seed, stream=True).raw)
         imageRequest = requests.get(seed, stream=True).raw

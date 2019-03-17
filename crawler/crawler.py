@@ -1,3 +1,5 @@
+from urllib.parse import urlparse
+
 import psycopg2
 from processFrontier import processFrontier
 from bs4 import BeautifulSoup
@@ -30,13 +32,6 @@ def processSeed():
         cur.execute(sql, ('FRONTIER', ))
         seedData = cur.fetchone()
 
-        sql = """select domain from crawldb.site where id=%s"""
-        cur.execute(sql, (seedData[1], ))
-        seedDomain = cur.fetchone()
-        if seedDomain is not None:
-            seedDomain = 'https://' + seedDomain[0]
-        # print(seedDomain)
-
         # TODO check HTML content
         if seedData[3] is None:
             # binary data
@@ -64,7 +59,11 @@ def processSeed():
                 imageSrc = str(imageObject.get('src'))
                 # print(imageSrc)
                 # process image using processImg function
-                processImg(imageSrc, seedData[0], seedDomain)
+
+                if 'http' not in imageSrc:
+                    urlParts = urlparse(seedData[2])
+                    imageSrc = urlParts.scheme + '://' + urlParts.netloc + imageSrc
+                processImg(imageSrc, seedData[0])
 
             # should there be single foor loop with 2 conditions
             # for <a href> and <img>?

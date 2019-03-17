@@ -54,6 +54,13 @@ def processFrontier(seed):
         parsed_uri = urlparse(seed)
         domain = '{uri.netloc}'.format(uri=parsed_uri)
 
+        # neloc and path same -> duplicate
+        # urlParts = urlparse(seed)
+        # print(urlParts)
+        # urlCanonicalization = urlParts[2].rpartition('/')
+        # print(urlCanonicalization)
+        # return None
+
         # TODO: if domain !exists insert new (use dblib.getSiteId)
         if getSiteId(domain) is None:
             responseRobots = requests.get(seed + '/robots.txt')
