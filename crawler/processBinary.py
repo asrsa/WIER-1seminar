@@ -2,13 +2,13 @@ import psycopg2
 import requests
 from db.config import config
 
-includeBinary = ['.pdf', '.doc', '.ppt']
+includeBinary = ['.pdf', '.doc', '.ppt', '.docx', '.pptx']
 
 
 def processBinaryData(seed, seedID):
 
     # check if binary data is stored or not
-    print('inside binar data')
+    print('inside binary data')
     for dataType in includeBinary:
         if dataType in seed:
             urlData = requests.get(seed)
