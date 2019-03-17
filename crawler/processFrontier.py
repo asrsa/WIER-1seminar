@@ -35,7 +35,7 @@ def processFrontier(seed):
     chrome_options.add_argument('--disable-browser-side-navigation')
     chrome_options.headless = True
     driver = webdriver.Chrome(options=chrome_options)
-    driver.set_page_load_timeout(20)                        # wait 20 seconds, move to next url after timeout
+    #driver.set_page_load_timeout(20)                        # wait 20 seconds, move to next url after timeout
 
 
     # wait 3 secs for web to load
@@ -91,27 +91,26 @@ def processFrontier(seed):
         # detect duplicator by calculating seed canonical form
         # and check if seedCanonicalization has been already visited
         seedCanonicalization = parsed_uri.scheme + '://' + parsed_uri.netloc + parsed_uri.path
+        seedCanonicalization = seedCanonicalization + '?' + parsed_uri.query if parsed_uri.query != "" else seedCanonicalization
+
+        # remove trailing slash: e-uprava.gov.si/ == e-uprava.gov.si
+        seedCanonicalization = seedCanonicalization[:-1] if seedCanonicalization.endswith('/') else seedCanonicalization
 
         # mark seed (that is now in proper form) as 'visited seed'
-        if seedCanonicalization in visitedSeed:
+        # if seedCanonicalization in visitedSeed:
+        #     pageTypeCode = 'DUPLICATE'
+        # else:
+        #     pageTypeCode = 'FRONTIER'
+        #     visitedSeed.append(seedCanonicalization)
+        if getCanonUrl(seedCanonicalization) is not None:
             pageTypeCode = 'DUPLICATE'
         else:
             pageTypeCode = 'FRONTIER'
-            visitedSeed.append(seedCanonicalization)
-
-        # Duplicate po page content? Ker page url ima na nivoju baze nastavlen unique_url_index
-        # sql = """select hash from crawldb.page where hash=%s;"""
-        # cur.execute(sql, (htmlHash, ))
-        # ce najde vsaj en record v tabeli, pomeni, da page ze obstaja -> duplicat
-        # if cur.fetchone() is None:
-        #    pageTypeCode = "FRONTIER"
-        # else:
-        #    pageTypeCode = "DUPLICATE"
 
         # insert into table | throws IntegrityError if url already exists
-        sql = """INSERT INTO crawldb.page(site_id, page_type_code, url, html_content, http_status_code, accessed_time, hash) 
-               VALUES(%s, %s, %s, %s, %s, %s, %s) RETURNING id;"""
-        cur.execute(sql, (siteID(domain, conn), pageTypeCode, seed, htmlContent, response.status_code, datetime.datetime.now(), htmlHash))
+        sql = """INSERT INTO crawldb.page(site_id, page_type_code, url, html_content, http_status_code, accessed_time, hash, canon_url) 
+               VALUES(%s, %s, %s, %s, %s, %s, %s, %s) RETURNING id;"""
+        cur.execute(sql, (siteID(domain, conn), pageTypeCode, seed, htmlContent, response.status_code, datetime.datetime.now(), htmlHash, seedCanonicalization))
         nextPageId = cur.fetchone()[0]
         conn.commit()
 
