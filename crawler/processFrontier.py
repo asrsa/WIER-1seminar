@@ -10,6 +10,9 @@ import psycopg2
 import requests
 import datetime
 
+# List is used to check if site exists in DB. Instead of performing select operation for every url
+# set is generated along with insertion statement to avoid too much 'selecting performance' over and over again
+visitedSeed = []
 
 def siteID(domain, conn):
     cur = conn.cursor()
@@ -54,13 +57,6 @@ def processFrontier(seed):
         parsed_uri = urlparse(seed)
         domain = '{uri.netloc}'.format(uri=parsed_uri)
 
-        # neloc and path same -> duplicate
-        # urlParts = urlparse(seed)
-        # print(urlParts)
-        # urlCanonicalization = urlParts[2].rpartition('/')
-        # print(urlCanonicalization)
-        # return None
-
         # TODO: if domain !exists insert new (use dblib.getSiteId)
         if getSiteId(domain) is None:
             responseRobots = requests.get(seed + '/robots.txt')
@@ -82,6 +78,7 @@ def processFrontier(seed):
             cur.execute(sql, (domain, robots, sitemap, domain))
             conn.commit()
 
+        # obtain seed content
         htmlContent = None
         htmlHash = ''
         if "html" in response.headers['content-type']:
@@ -91,18 +88,29 @@ def processFrontier(seed):
             htmlHash = hashlib.md5(htmlContent.encode()).hexdigest()
         driver.close()
 
-        # is page duplicate? enter DUPLICATE
-        # Duplicate po page content? Ker page url ima na nivoju baze nastavlen unique_url_index
-        sql = """select hash from crawldb.page where hash=%s;"""
-        cur.execute(sql, (htmlHash, ))
-        # ce najde vsaj en record v tabeli, pomeni, da page ze obstaja -> duplicat
-        if cur.fetchone() is None:
-            pageTypeCode = "FRONTIER"
+        # detect duplicator by calculating seed canonical form
+        # and check if seedCanonicalization has been already visited
+        seedCanonicalization = parsed_uri.scheme + '://' + parsed_uri.netloc + parsed_uri.path
+
+        # mark seed (that is now in proper form) as 'visited seed'
+        if seedCanonicalization in visitedSeed:
+            pageTypeCode = 'DUPLICATE'
         else:
-            pageTypeCode = "DUPLICATE"
+            pageTypeCode = 'FRONTIER'
+            visitedSeed.append(seedCanonicalization)
+
+        # Duplicate po page content? Ker page url ima na nivoju baze nastavlen unique_url_index
+        # sql = """select hash from crawldb.page where hash=%s;"""
+        # cur.execute(sql, (htmlHash, ))
+        # ce najde vsaj en record v tabeli, pomeni, da page ze obstaja -> duplicat
+        # if cur.fetchone() is None:
+        #    pageTypeCode = "FRONTIER"
+        # else:
+        #    pageTypeCode = "DUPLICATE"
+
         # insert into table | throws IntegrityError if url already exists
         sql = """INSERT INTO crawldb.page(site_id, page_type_code, url, html_content, http_status_code, accessed_time, hash) 
-                VALUES(%s, %s, %s, %s, %s, %s, %s) RETURNING id;"""
+               VALUES(%s, %s, %s, %s, %s, %s, %s) RETURNING id;"""
         cur.execute(sql, (siteID(domain, conn), pageTypeCode, seed, htmlContent, response.status_code, datetime.datetime.now(), htmlHash))
         nextPageId = cur.fetchone()[0]
         conn.commit()
