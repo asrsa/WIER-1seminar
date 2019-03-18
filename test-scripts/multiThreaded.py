@@ -18,7 +18,7 @@ threadLock = threading.Lock()
 threads = []
 
 
-# thread class - stores thread ID and conn object that thread uses to communicates with DB
+# thread class - stores thread ID and conn object that thread uses to communicate with DB
 class customThread(threading.Thread):
     def __init__(self, threadID, conn):
         threading.Thread.__init__(self)
@@ -30,21 +30,39 @@ class customThread(threading.Thread):
         while seedQueueHasSeeds:
             threadLock.acquire()
             cur = self.conn.cursor()
-            sql = """select site_id, page_type_code from crawldb.page where page_type_code=%s"""
+
+            # perform update just for one row and with RETURNING ID?
+
+            sql = """select id, page_type_code from crawldb.page where page_type_code=%s"""
             cur.execute(sql, ('FRONTIER',))
-            data = cur.fetchone()
-            print(data, end=' | ')
-            print(self.threadID)
-            threadLock.release()
-            time.sleep(5)
-            seedQueueHasSeeds = False
-            # if cur.fetchone() is None:
-            #    # no more FRONTIER seeds -> seedQueue si empty
-            #    seedQueueHasSeeds = False
-            # else:
-            #    # 'poll' first seed and process it
-            #    processSeed(option, domains)
-            # time.sleep(1)
+            # pageID must be passed to processSeed function!
+            # also conn object should be passing to all function too - thread has his own conn object from conn pool!
+            # Or conn object is put back to pool after every sql statement
+            # and retrieved again before every sql statement - need to have 'global' reference to conn pol then
+            # Also add seedData to function
+            # to sum all up -> processSeed(option, domains, seedData, conn)
+            seedData = cur.fetchone()
+            if seedData is not None:
+                print(seedData[0], end=' | ')
+                print(self.threadID)
+                # update site_id to duplicate so the other thread wont select the same page
+                sql = """update crawldb.page set page_type_code=%s, html_content=%s where id=%s"""
+                cur.execute(sql, (None, None, seedData[0]))
+                self.conn.commit()
+                threadLock.release()
+                time.sleep(1)
+            else:
+                seedQueueHasSeeds = False
+
+                # if cur.fetchone() is None:
+                #    # no more FRONTIER seeds -> seedQueue si empty
+                #    seedQueueHasSeeds = False
+                # else:
+                #    # 'poll' first seed and process it
+                #    processSeed(option, domains)
+
+        # when thread is done, put back conn object
+        threaded_postgreSQL_pool.putconn(ps_connection)
 
 
 try:
@@ -60,18 +78,17 @@ try:
     # create threads
     for i in range(2):
         ps_connection = threaded_postgreSQL_pool.getconn()
-        # Use getconn() method to Get Connection from connection pool for thread
         if ps_connection:
-            print('successfully recived connection from connection pool')
+            print('successfully received connection from connection pool')
             ps_connection = threaded_postgreSQL_pool.getconn()
             t = customThread(i, ps_connection)
             t.start()
             threads.append(t)
-            threaded_postgreSQL_pool.putconn(ps_connection)
 
-        # Wait for all threads to complete
-        for t in threads:
-            t.join()
+
+    # Wait for all threads to complete
+    for t in threads:
+        t.join()
 
 
 except (Exception, psycopg2.DatabaseError) as error:
