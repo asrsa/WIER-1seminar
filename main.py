@@ -7,7 +7,7 @@ from processFrontier import processFrontier
 
 seedPagesTmp = ['https://e-uprava.gov.si', 'http://evem.gov.si',
                 'https://podatki.gov.si', 'http://e-prostor.gov.si']
-seedPages = ['https://e-uprava.gov.si']
+seedPages = ['https://podatki.gov.si']
 
 # test for images extraction. Use thi url to obtain background image from airbnb site.
 # uncomment and run this to test saving images into DB. There are 3 images stored into DB.
@@ -19,9 +19,14 @@ seedPages = ['https://e-uprava.gov.si']
 
 conn = None
 
+# option: 0 - within given site domain (save img / binary)
+#         1 - within .gov.si domain (don't save img / binary)
+option = 0
+domains = seedPages
+
 # init frontier
 for seed in seedPages:
-    processFrontier(seed)
+    processFrontier(seed, option, domains)
 print('Init frontier done!')
 
 seedQueueHasSeeds = True
@@ -37,7 +42,7 @@ while seedQueueHasSeeds:
             seedQueueHasSeeds = False
         else:
             # 'poll' first seed and process it
-            processSeed()
+            processSeed(option, domains)
         time.sleep(1)
 
     except (Exception, psycopg2.DatabaseError) as error:

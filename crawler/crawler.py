@@ -19,7 +19,7 @@ from db.dblib import *
 #       add Links from page - to page (currPageId -> returning id page)
 
 
-def processSeed():
+def processSeed(option, domains):
     # get first seed from frontier
     conn = None
     try:
@@ -33,20 +33,29 @@ def processSeed():
         seedData = cur.fetchone()
 
         # TODO: check in domain or gov.si
+        # parsed_uri = urlparse(seedData[2])
+        # domain = '{uri.netloc}'.format(uri=parsed_uri)
+        #
+        # if option == 0 and any(domain in d for d in domains):
+        #     print("in site domain")
+        #
+        # if option == 1 and domains[0] in seedData[2]:
+        #     print("in site domain")
+
 
         # TODO check HTML content
         if seedData[3] is None:
             # binary data
-            sql = """update crawldb.page set page_type_code=%s, html_content=%s where site_id=%s"""
-            cur.execute(sql, ('BINARY', None, seedData[1]))
+            sql = """update crawldb.page set page_type_code=%s, html_content=%s where id=%s"""
+            cur.execute(sql, ('BINARY', None, seedData[0]))
             conn.commit()
 
             # call function to process binary data type
             processBinaryData(seedData[2], seedData[0])
         else:
             # html data
-            sql = """update crawldb.page set page_type_code=%s where site_id=%s"""
-            cur.execute(sql, ('HTML', seedData[1]))
+            sql = """update crawldb.page set page_type_code=%s where id=%s"""
+            cur.execute(sql, ('HTML', seedData[0]))
             conn.commit()
 
             # beautify html content
@@ -70,7 +79,7 @@ def processSeed():
             # should there be single foor loop with 2 conditions
             # for <a href> and <img>?
             # extract links <a href ... >
-            for link in rawHtml.find_all('a'):
+            for link in rawHtml.find_all('a', href=True):
                 # print(link.get('href'))
                 url = str(link.get('href'))
 
@@ -81,7 +90,7 @@ def processSeed():
                 # print(url)
 
                 # add url to frontier
-                nextPageId = processFrontier(url)
+                nextPageId = processFrontier(url, option, domains)
                 currPageId = seedData[5]
 
                 if nextPageId is not None:

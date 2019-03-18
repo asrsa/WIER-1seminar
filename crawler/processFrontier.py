@@ -29,13 +29,26 @@ def getSitemap(robots):
             return smap.text
 
 
-def processFrontier(seed):
+def processFrontier(seed, option, domains):
     print('Processing ' + seed)
+
+    parsed_uri = urlparse(seed)
+    domain = '{uri.netloc}'.format(uri=parsed_uri)
+
+
+    if option == 0 and not any(domain in d for d in domains):
+        print("not in site domain, skipping")
+        return
+
+    if option == 1 and not domains[0] in seed:
+        print("not in site domain, skipping")
+        return
+
     chrome_options = Options()
     chrome_options.add_argument('--disable-browser-side-navigation')
     chrome_options.headless = True
     driver = webdriver.Chrome(options=chrome_options)
-    #driver.set_page_load_timeout(20)                        # wait 20 seconds, move to next url after timeout
+    # driver.set_page_load_timeout(20)                        # wait 20 seconds, move to next url after timeout
 
 
     # wait 3 secs for web to load
