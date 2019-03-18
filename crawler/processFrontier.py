@@ -104,6 +104,7 @@ def processFrontier(seed):
         #     visitedSeed.append(seedCanonicalization)
         if getCanonUrl(seedCanonicalization) is not None:
             pageTypeCode = 'DUPLICATE'
+            htmlContent = None
         else:
             pageTypeCode = 'FRONTIER'
 

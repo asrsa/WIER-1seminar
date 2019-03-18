@@ -32,6 +32,8 @@ def processSeed():
         cur.execute(sql, ('FRONTIER', ))
         seedData = cur.fetchone()
 
+        # TODO: check in domain or gov.si
+
         # TODO check HTML content
         if seedData[3] is None:
             # binary data
