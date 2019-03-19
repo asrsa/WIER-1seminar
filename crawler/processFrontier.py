@@ -9,10 +9,13 @@ from urllib.parse import urlparse
 import psycopg2
 import requests
 import datetime
+import urllib.robotparser
+import time
 
 # List is used to check if site exists in DB. Instead of performing select operation for every url
 # set is generated along with insertion statement to avoid too much 'selecting performance' over and over again
 visitedSeed = []
+userAgent = "Chrome/73.0.3683.75 Safari/537.36"
 
 def siteID(domain, conn):
     cur = conn.cursor()
@@ -72,7 +75,7 @@ def processFrontier(seed, option, domains):
 
         # TODO: if domain !exists insert new (use dblib.getSiteId)
         if getSiteId(domain) is None:
-            responseRobots = requests.get(seed + '/robots.txt')
+            responseRobots = requests.get(parsed_uri[0] + '://' + domain + '/robots.txt')
             if responseRobots.status_code == 200:
                 robots = responseRobots.text
                 sitemap = getSitemap(robots)
@@ -90,6 +93,22 @@ def processFrontier(seed, option, domains):
                 sitemap = sitemap.replace('\x00', '')
             cur.execute(sql, (domain, robots, sitemap, domain))
             conn.commit()
+
+        # ROBOTS CHECK
+        site = siteID(domain, conn)
+        robots_content = getRobots(site)
+
+        if robots_content is not None:
+            rp = urllib.robotparser.RobotFileParser()
+            rp.parse(robots_content.splitlines())
+
+            if not rp.can_fetch(userAgent, seed):
+                print("Robots disallowed")
+                return
+            # CRAWL DELAY
+            delay = rp.crawl_delay(userAgent)
+            if delay is not None:
+                time.sleep(delay)
 
         # obtain seed content
         htmlContent = None
@@ -124,7 +143,7 @@ def processFrontier(seed, option, domains):
         # insert into table | throws IntegrityError if url already exists
         sql = """INSERT INTO crawldb.page(site_id, page_type_code, url, html_content, http_status_code, accessed_time, hash, canon_url) 
                VALUES(%s, %s, %s, %s, %s, %s, %s, %s) RETURNING id;"""
-        cur.execute(sql, (siteID(domain, conn), pageTypeCode, seed, htmlContent, response.status_code, datetime.datetime.now(), htmlHash, seedCanonicalization))
+        cur.execute(sql, (site, pageTypeCode, seed, htmlContent, response.status_code, datetime.datetime.now(), htmlHash, seedCanonicalization))
         nextPageId = cur.fetchone()[0]
         conn.commit()
 

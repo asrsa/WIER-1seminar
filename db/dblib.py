@@ -3,7 +3,7 @@ import datetime
 from db.config import config
 
 __all__ = ["getFrontier", "getSiteId", "insertPage", "insertLink",
-           "getPageId", 'getCanonUrl']
+           "getPageId", 'getCanonUrl', 'getRobots']
 
 def getFrontier():
     conn = None
@@ -127,6 +127,27 @@ def getCanonUrl(url):
 
         cur.execute(sql, (url,))
         return cur.fetchone()
+
+        cur.close()
+
+    except (Exception, psycopg2.DatabaseError) as error:
+        print(error)
+    finally:
+        if conn is not None:
+            conn.close()
+
+def getRobots(siteId):
+    conn = None
+    try:
+        params = config()
+        conn = psycopg2.connect(**params)
+
+        # create a cursor
+        cur = conn.cursor()
+
+        sql = """SELECT robots_content FROM crawldb.site WHERE id=%s"""
+        cur.execute(sql, (siteId,))
+        return cur.fetchone()[0]
 
         cur.close()
 
