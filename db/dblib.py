@@ -5,11 +5,11 @@ from db.config import config
 __all__ = ["getFrontier", "getSiteId", "insertPage", "insertLink",
            "getPageId", 'getCanonUrl', 'getRobots']
 
-def getFrontier():
-    conn = None
+def getFrontier(conn):
+    # conn = None
     try:
-        params = config()
-        conn = psycopg2.connect(**params)
+    #    params = config()
+    #    conn = psycopg2.connect(**params)
 
         # create a cursor
         cur = conn.cursor()
@@ -17,63 +17,63 @@ def getFrontier():
         sql = """SELECT id FROM crawldb.page WHERE page_type_code='FRONTIER'"""
 
         cur.execute(sql)
-        return cur.fetchall()
-
+        data = cur.fetchall()
         cur.close()
+        return data
 
     except (Exception, psycopg2.DatabaseError) as error:
         print(error)
-    finally:
-        if conn is not None:
-            conn.close()
+    # finally:
+    #    if conn is not None:
+    #        conn.close()
 
-def getSiteId(domain):
-    conn = None
+def getSiteId(domain, conn):
+    # conn = None
     try:
-        params = config()
-        conn = psycopg2.connect(**params)
+    #    params = config()
+    #    conn = psycopg2.connect(**params)
 
         # create a cursor
         cur = conn.cursor()
 
         sql = """SELECT id FROM crawldb.site WHERE domain=%s"""
         cur.execute(sql, (domain,))
-        return cur.fetchone()
-
+        data = cur.fetchone()
         cur.close()
+        return data
 
     except (Exception, psycopg2.DatabaseError) as error:
         print(error)
-    finally:
-        if conn is not None:
-            conn.close()
+    #finally:
+    #    if conn is not None:
+    #        conn.close()
 
-def getPageId(url):
-    conn = None
+def getPageId(url, conn):
+    # conn = None
     try:
-        params = config()
-        conn = psycopg2.connect(**params)
+    #    params = config()
+    #    conn = psycopg2.connect(**params)
 
         # create a cursor
         cur = conn.cursor()
 
         sql = """SELECT id FROM crawldb.page WHERE url=%s"""
         cur.execute(sql, (url,))
-        return cur.fetchone()[0]
-
+        data = cur.fetchone()[0]
         cur.close()
+        return data
 
     except (Exception, psycopg2.DatabaseError) as error:
         print(error)
-    finally:
-        if conn is not None:
-            conn.close()
+    # finally:
+    #    if conn is not None:
+    #        conn.close()
 
-def insertPage(pageData):
-    conn = None
+def insertPage(pageData, conn):
+    #conn = None
     try:
-        params = config()
-        conn = psycopg2.connect(**params)
+    #    params = config()
+    #    conn = psycopg2.connect(**params)
 
         # create a cursor
         cur = conn.cursor()
@@ -87,15 +87,14 @@ def insertPage(pageData):
 
     except (Exception, psycopg2.DatabaseError) as error:
         print(error)
-    finally:
-        if conn is not None:
-            conn.close()
+    # finally:
+    #    if conn is not None:
+    #        conn.close()
 
-def insertLink(link1, link2):
-    conn = None
+def insertLink(link1, link2, conn):
     try:
-        params = config()
-        conn = psycopg2.connect(**params)
+        # params = config()
+        # conn = psycopg2.connect(**params)
 
         # create a cursor
         cur = conn.cursor()
@@ -105,20 +104,22 @@ def insertLink(link1, link2):
         cur.execute(sql, (link1, link2))
         conn.commit()
 
-        cur.close()
+        # cur.close()
 
     except (Exception, psycopg2.DatabaseError) as error:
         print(error)
-    finally:
-        if conn is not None:
-            conn.close()
+        # ce faila, naj bo rollback(), cene se use pokvar :s
+        conn.rollback()
+    # finally:
+    #    if conn is not None:
+    #        conn.close()
 
 
-def getCanonUrl(url):
-    conn = None
+def getCanonUrl(url, conn):
+    # conn = None
     try:
-        params = config()
-        conn = psycopg2.connect(**params)
+        # params = config()
+        # conn = psycopg2.connect(**params)
 
         # create a cursor
         cur = conn.cursor()
@@ -126,33 +127,33 @@ def getCanonUrl(url):
         sql = """SELECT id FROM crawldb.page WHERE canon_url=%s"""
 
         cur.execute(sql, (url,))
-        return cur.fetchone()
-
+        data = cur.fetchone()
         cur.close()
+        return data
 
     except (Exception, psycopg2.DatabaseError) as error:
         print(error)
-    finally:
-        if conn is not None:
-            conn.close()
+    # finally:
+    #    if conn is not None:
+    #        conn.close()
 
-def getRobots(siteId):
-    conn = None
+def getRobots(siteId, conn):
+    #conn = None
     try:
-        params = config()
-        conn = psycopg2.connect(**params)
+    #    params = config()
+    #    conn = psycopg2.connect(**params)
 
         # create a cursor
         cur = conn.cursor()
 
         sql = """SELECT robots_content FROM crawldb.site WHERE id=%s"""
         cur.execute(sql, (siteId,))
-        return cur.fetchone()[0]
-
+        data = cur.fetchone()[0]
         cur.close()
+        return data
 
     except (Exception, psycopg2.DatabaseError) as error:
         print(error)
-    finally:
-        if conn is not None:
-            conn.close()
+    # finally:
+    #    if conn is not None:
+    #        conn.close()

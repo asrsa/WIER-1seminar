@@ -32,7 +32,7 @@ def getSitemap(robots):
             return smap.text
 
 
-def processFrontier(seed, option, domains):
+def processFrontier(seed, option, domains, conn):
     print('Processing ' + seed)
 
     parsed_uri = urlparse(seed)
@@ -56,12 +56,11 @@ def processFrontier(seed, option, domains):
 
     # wait 3 secs for web to load
     driver.implicitly_wait(3)
-    conn = None
 
     nextPageId = None
     try:
-        params = config()
-        conn = psycopg2.connect(**params)
+        # params = config()
+        # conn = psycopg2.connect(**params)
 
         # create a cursor
         cur = conn.cursor()
@@ -74,7 +73,7 @@ def processFrontier(seed, option, domains):
         domain = '{uri.netloc}'.format(uri=parsed_uri)
 
         # TODO: if domain !exists insert new (use dblib.getSiteId)
-        if getSiteId(domain) is None:
+        if getSiteId(domain, conn) is None:
             responseRobots = requests.get(parsed_uri[0] + '://' + domain + '/robots.txt')
             if responseRobots.status_code == 200:
                 robots = responseRobots.text
@@ -96,7 +95,7 @@ def processFrontier(seed, option, domains):
 
         # ROBOTS CHECK
         site = siteID(domain, conn)
-        robots_content = getRobots(site)
+        robots_content = getRobots(site, conn)
 
         if robots_content is not None:
             rp = urllib.robotparser.RobotFileParser()
@@ -134,7 +133,7 @@ def processFrontier(seed, option, domains):
         # else:
         #     pageTypeCode = 'FRONTIER'
         #     visitedSeed.append(seedCanonicalization)
-        if getCanonUrl(seedCanonicalization) is not None:
+        if getCanonUrl(seedCanonicalization, conn) is not None:
             pageTypeCode = 'DUPLICATE'
             htmlContent = None
         else:
@@ -148,18 +147,20 @@ def processFrontier(seed, option, domains):
         conn.commit()
 
         # close the communication with the PostgreSQL
-        cur.close()
+        # cur.close()
     except (WebDriverException, TimeoutException) as error:
         print(error)
         return None
     except (Exception, psycopg2.IntegrityError) as error:
         print(error)
+        conn.rollback()
         return None
     except (Exception, psycopg2.DatabaseError) as error:
         print(error)
         return None
-    finally:
-        if conn is not None:
-            conn.close()
+    # finally:
+    #    if conn is not None:
+    #        print('closing conn')
+    #        conn.close()
 
     return nextPageId

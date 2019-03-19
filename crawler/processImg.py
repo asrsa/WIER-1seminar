@@ -8,8 +8,8 @@ import requests
 import datetime
 
 
-def processImg(seed, seedID):
-    conn = None
+def processImg(seed, seedID, conn):
+    # conn = None
     try:
         # calculate image_name
         urlParts = urllib.parse.urlparse(seed)
@@ -38,8 +38,8 @@ def processImg(seed, seedID):
         # print(imageBytes)                          # prints <_io.BytesIO object at 0x04B83090>
         # print(imageBytes.getvalue())               # prints b'\xff\xd8\xff\xe0\x00\x10JFIF\x00\x01...
 
-        params = config()
-        conn = psycopg2.connect(**params)
+    #    params = config()
+    #    conn = psycopg2.connect(**params)
       
         # create a cursor
         cur = conn.cursor()
@@ -53,6 +53,7 @@ def processImg(seed, seedID):
         print(error)
     except (Exception, psycopg2.DatabaseError) as error:
         print(error)
-    finally:
-        if conn is not None:
-            conn.close()
+        conn.rollback()
+    #finally:
+    #    if conn is not None:
+    #        conn.close()

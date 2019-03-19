@@ -5,7 +5,7 @@ from db.config import config
 includeBinary = ['.pdf', '.doc', '.ppt', '.docx', '.pptx']
 
 
-def processBinaryData(seed, seedID):
+def processBinaryData(seed, seedID, conn):
 
     # check if binary data is stored or not
     print('inside binary data')
@@ -13,10 +13,10 @@ def processBinaryData(seed, seedID):
         if dataType in seed:
             urlData = requests.get(seed)
 
-            conn = None
+            # conn = None
             try:
-                params = config()
-                conn = psycopg2.connect(**params)
+                # params = config()
+                # conn = psycopg2.connect(**params)
 
                 # create a cursor
                 cur = conn.cursor()
@@ -35,6 +35,7 @@ def processBinaryData(seed, seedID):
                 conn.commit()
             except (Exception, psycopg2.DatabaseError) as error:
                 print(error)
-            finally:
-                if conn is not None:
-                    conn.close()
+                conn.rollback()
+            # finally:
+            #    if conn is not None:
+            #        conn.close()

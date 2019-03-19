@@ -19,17 +19,17 @@ from db.dblib import *
 #       add Links from page - to page (currPageId -> returning id page)
 
 
-def processSeed(option, domains):
+def processSeed(option, domains, conn, pageID):
     # get first seed from frontier
-    conn = None
+    # conn = None
     try:
-        params = config()
-        conn = psycopg2.connect(**params)
+        # params = config()
+        # conn = psycopg2.connect(**params)
 
         # create a cursor
         cur = conn.cursor()
-        sql = """select id, site_id, url, html_content, hash, id from crawldb.page where page_type_code=%s"""
-        cur.execute(sql, ('FRONTIER', ))
+        sql = """select id, site_id, url, html_content, hash, id from crawldb.page where id=%s"""
+        cur.execute(sql, (pageID, ))
         seedData = cur.fetchone()
 
         # TODO: check in domain or gov.si
@@ -51,7 +51,7 @@ def processSeed(option, domains):
             conn.commit()
 
             # call function to process binary data type
-            processBinaryData(seedData[2], seedData[0])
+            processBinaryData(seedData[2], seedData[0], conn)
         else:
             # html data
             sql = """update crawldb.page set page_type_code=%s where id=%s"""
@@ -74,7 +74,7 @@ def processSeed(option, domains):
                 if 'http' not in imageSrc:
                     urlParts = urlparse(seedData[2])
                     imageSrc = urlParts.scheme + '://' + urlParts.netloc + imageSrc
-                processImg(imageSrc, seedData[0])
+                processImg(imageSrc, seedData[0], conn)
 
             # should there be single foor loop with 2 conditions
             # for <a href> and <img>?
@@ -90,16 +90,16 @@ def processSeed(option, domains):
                 # print(url)
 
                 # add url to frontier
-                nextPageId = processFrontier(url, option, domains)
+                nextPageId = processFrontier(url, option, domains, conn)
                 currPageId = seedData[5]
 
                 if nextPageId is not None:
-                    insertLink(currPageId, nextPageId)
+                    insertLink(currPageId, nextPageId, conn)
                 else:
-                    insertLink(currPageId, currPageId)
+                    insertLink(currPageId, currPageId, conn)
 
     except (Exception, psycopg2.DatabaseError) as error:
         print(error)
-    finally:
-        if conn is not None:
-            conn.close()
+    # finally:
+    #    if conn is not None:
+    #        conn.close()
