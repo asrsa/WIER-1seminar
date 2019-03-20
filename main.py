@@ -6,8 +6,8 @@ from crawler import processSeed
 from db.config import config
 from processFrontier import processFrontier
 
-seedPagesTmp = ['https://e-uprava.gov.si', 'http://evem.gov.si',
-                'https://podatki.gov.si', 'http://e-prostor.gov.si']
+seedPagesTmp = ['http://e-uprava.gov.si', 'http://www.evem.gov.si',
+                'http://podatki.gov.si', 'http://e-prostor.gov.si']
 seedPages = ['http://e-prostor.gov.si']
 
 # option: 0 - within given site domain (save img / binary)

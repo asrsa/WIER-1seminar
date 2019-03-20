@@ -6,11 +6,13 @@ from selenium import webdriver
 from db.dblib import *
 from db.config import config
 from urllib.parse import urlparse
+
 import psycopg2
 import requests
 import datetime
 import urllib.robotparser
 import time
+import xml.etree.ElementTree as ET
 
 # List is used to check if site exists in DB. Instead of performing select operation for every url
 # set is generated along with insertion statement to avoid too much 'selecting performance' over and over again
@@ -31,8 +33,18 @@ def getSitemap(robots):
             smap = requests.get(line.split(' ')[1])
             return smap.text
 
+def processSitemap(option, domains, conn, sitemap):
+    root = ET.fromstring(sitemap)
+    print("Started Sitemap")
+    for url in root:
+        # print(url[0].text)
+        processFrontier(url[0].text, option, domains, conn)
+    print("Finished sitemap")
 
 def processFrontier(seed, option, domains, conn):
+    # Remove 'www.' from seeds
+    seed = seed.replace('www.', '')
+
     print('Processing ' + seed)
 
     parsed_uri = urlparse(seed)
@@ -90,8 +102,15 @@ def processFrontier(seed, option, domains, conn):
                 robots = robots.replace('\x00', '')
             if sitemap is not None:
                 sitemap = sitemap.replace('\x00', '')
+
+
             cur.execute(sql, (domain, robots, sitemap, domain))
             conn.commit()
+
+            if sitemap is not None:
+                # PROCESS SITEMAP
+                processSitemap(option, domains, conn, sitemap)
+
 
         # ROBOTS CHECK
         site = siteID(domain, conn)

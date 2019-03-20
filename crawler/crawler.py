@@ -86,7 +86,10 @@ def processSeed(option, domains, conn, pageID):
                 # transform /si -> https://e-uprava.gov.si/si
                 if 'http' not in url:
                     urlParts = urlparse(seedData[2])
-                    url = urlParts.scheme + '://' + urlParts.netloc + url
+                    if not url.startswith('/') and not url.startswith('#'):
+                        url = urlParts.scheme + '://' + urlParts.netloc + '/' + url
+                    else:
+                        url = urlParts.scheme + '://' + urlParts.netloc + url
                 # print(url)
 
                 # add url to frontier
