@@ -41,7 +41,6 @@ def processImg(seed, seedID, conn):
 
     #    params = config()
     #    conn = psycopg2.connect(**params)
-        print(imageBytes.getvalue())
         # create a cursor
         cur = conn.cursor()
       
