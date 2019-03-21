@@ -27,6 +27,7 @@ def processImg(seed, seedID, conn):
         # colum data in postgres is type of bytea
         imageBytes = io.BytesIO()
 
+
         if '.jpeg' in seed or '.jpg' in seed:
             imageObject.save(imageBytes, format='JPEG')
             imageContentType = 'JPEG' if '.jpeg' in seed else 'JPG'
@@ -40,7 +41,7 @@ def processImg(seed, seedID, conn):
 
     #    params = config()
     #    conn = psycopg2.connect(**params)
-      
+        print(imageBytes.getvalue())
         # create a cursor
         cur = conn.cursor()
       

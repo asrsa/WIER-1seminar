@@ -3,6 +3,8 @@ import hashlib
 from selenium.common.exceptions import WebDriverException, TimeoutException
 from selenium.webdriver.chrome.options import Options
 from selenium import webdriver
+from selenium.webdriver.common.keys import Keys
+
 from db.dblib import *
 from db.config import config
 from urllib.parse import urlparse
@@ -13,11 +15,21 @@ import datetime
 import urllib.robotparser
 import time
 import xml.etree.ElementTree as ET
+import copy
 
 # List is used to check if site exists in DB. Instead of performing select operation for every url
 # set is generated along with insertion statement to avoid too much 'selecting performance' over and over again
 visitedSeed = []
 userAgent = "Chrome/73.0.3683.75 Safari/537.36"
+
+
+#chrome_options = Options()
+#chrome_options.add_argument('--disable-browser-side-navigation')
+#chrome_options.headless = True
+#driver = webdriver.Chrome(options=chrome_options)
+#driver.set_page_load_timeout(20)                        # wait 20 seconds, move to next url after timeout
+#driver.implicitly_wait(3)
+
 
 def siteID(domain, conn):
     cur = conn.cursor()
@@ -41,6 +53,7 @@ def processSitemap(option, domains, conn, sitemap):
         processFrontier(url[0].text, option, domains, conn)
     print("Finished sitemap")
 
+
 def processFrontier(seed, option, domains, conn):
     # Remove 'www.' from seeds
     seed = seed.replace('www.', '')
@@ -63,7 +76,7 @@ def processFrontier(seed, option, domains, conn):
     chrome_options.add_argument('--disable-browser-side-navigation')
     chrome_options.headless = True
     driver = webdriver.Chrome(options=chrome_options)
-    # driver.set_page_load_timeout(20)                        # wait 20 seconds, move to next url after timeout
+    driver.set_page_load_timeout(20)                        # wait 20 seconds, move to next url after timeout
 
 
     # wait 3 secs for web to load
@@ -136,7 +149,36 @@ def processFrontier(seed, option, domains, conn):
 
             htmlContent = driver.page_source
             htmlHash = hashlib.md5(htmlContent.encode()).hexdigest()
-        driver.close()
+
+
+
+
+            onClicksList = len(driver.find_elements_by_xpath('//*[@onclick]'))
+            if onClicksList != 0:
+                for onClickUrl in range(onClicksList):
+                    driver.implicitly_wait(5)
+                    driver.find_elements_by_xpath('//*[@onclick]')[onClickUrl].click()
+                    windows = driver.window_handles
+
+                    if len(windows) > 1:
+                        driver.switch_to.window(windows[1])
+                    #print(driver.current_url)
+
+                    if seed == driver.current_url.replace('www.', ''):
+                        continue
+                    processFrontier(driver.current_url, option, domains, conn)
+
+                    if len(windows) == 1:
+                        driver.back()
+                    else:
+                        for window in windows[1:]:
+                            driver.switch_to.window(window)
+                            driver.close()
+                    driver.switch_to.window(windows[0])
+
+        driver.quit()
+
+
 
         # detect duplicator by calculating seed canonical form
         # and check if seedCanonicalization has been already visited
@@ -146,12 +188,7 @@ def processFrontier(seed, option, domains, conn):
         # remove trailing slash: e-uprava.gov.si/ == e-uprava.gov.si
         seedCanonicalization = seedCanonicalization[:-1] if seedCanonicalization.endswith('/') else seedCanonicalization
 
-        # mark seed (that is now in proper form) as 'visited seed'
-        # if seedCanonicalization in visitedSeed:
-        #     pageTypeCode = 'DUPLICATE'
-        # else:
-        #     pageTypeCode = 'FRONTIER'
-        #     visitedSeed.append(seedCanonicalization)
+
         if getCanonUrl(seedCanonicalization, conn) is not None:
             pageTypeCode = 'DUPLICATE'
             htmlContent = None
