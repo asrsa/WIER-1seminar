@@ -58,18 +58,18 @@ def processFrontier(seed, option, domains, conn):
     # Remove 'www.' from seeds
     seed = seed.replace('www.', '')
 
-    print('Processing ' + seed)
+    #print('Processing ' + seed)
 
     parsed_uri = urlparse(seed)
     domain = '{uri.netloc}'.format(uri=parsed_uri)
 
 
     if option == 0 and not any(domain in d for d in domains):
-        print("not in site domain, skipping")
+        #print("not in site domain, skipping")
         return
 
     if option == 1 and not domains[0] in seed:
-        print("not in site domain, skipping")
+        #print("not in site domain, skipping")
         return
 
     chrome_options = Options()
@@ -205,14 +205,14 @@ def processFrontier(seed, option, domains, conn):
         # close the communication with the PostgreSQL
         # cur.close()
     except (WebDriverException, TimeoutException) as error:
-        print(error)
+        #print(error)
         return None
     except (Exception, psycopg2.IntegrityError) as error:
-        print(error)
+        #print(error)
         conn.rollback()
         return None
     except (Exception, psycopg2.DatabaseError) as error:
-        print(error)
+        #print(error)
         return None
     # finally:
     #    if conn is not None:

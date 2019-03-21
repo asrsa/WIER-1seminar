@@ -107,7 +107,7 @@ def insertLink(link1, link2, conn):
         # cur.close()
 
     except (Exception, psycopg2.DatabaseError) as error:
-        print(error)
+        #print(error)
         # ce faila, naj bo rollback(), cene se use pokvar :s
         conn.rollback()
     # finally:

@@ -6,7 +6,7 @@ from crawler import processSeed
 from db.config import config
 from processFrontier import processFrontier
 
-seedPagesTmp = ['http://e-uprava.gov.si', 'http://www.evem.gov.si',
+seedPages = ['http://e-uprava.gov.si', 'http://www.evem.gov.si',
                 'http://podatki.gov.si', 'http://e-prostor.gov.si']
 seedPages = ['http://e-uprava.gov.si']
 
@@ -14,6 +14,7 @@ seedPages = ['http://e-uprava.gov.si']
 #         1 - within .gov.si domain (don't save img / binary)
 option = 0
 domains = seedPages
+threadsNumber = 4
 
 threaded_postgreSQL_pool = None
 threadLock = threading.Lock()
@@ -86,7 +87,7 @@ try:
     print('Init frontier done!')
     threaded_postgreSQL_pool.putconn(ps_connection)
     # create threads
-    for i in range(1):
+    for i in range(threadsNumber):
         ps_connection = threaded_postgreSQL_pool.getconn()
         if ps_connection:
             print('successfully received connection from connection pool')
