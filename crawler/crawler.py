@@ -1,108 +1,52 @@
 from urllib.parse import urlparse
-
-import psycopg2
 from processFrontier import processFrontier
 from bs4 import BeautifulSoup
-from db.config import config
 from processBinary import processBinaryData
 from processImg import processImg
-
 from db.dblib import *
 
-# TODO crawler implementation
-#   get frontier, set:
-#                 HTML  če je htmlContetn not null -> init frontier
-#                 BINARY ce je null -> download binary and insert int sql
-#   FOREACH LNKS <a>
-#       link in domainList  [opt: binary in media list]
-#       add page to frontier: returning ID  (call init_frontier(url))
-#       add Links from page - to page (currPageId -> returning id page)
 
-
-def processSeed(option, domains, conn, pageID):
-    # get first seed from frontier
-    # conn = None
+def processSeed(option, domains, conn, page):
     try:
-        # params = config()
-        # conn = psycopg2.connect(**params)
-
-        # create a cursor
-        cur = conn.cursor()
-        sql = """select id, site_id, url, html_content, hash, id from crawldb.page where id=%s"""
-        cur.execute(sql, (pageID, ))
-        seedData = cur.fetchone()
-
-        # TODO: check in domain or gov.si
-        # parsed_uri = urlparse(seedData[2])
-        # domain = '{uri.netloc}'.format(uri=parsed_uri)
-        #
-        # if option == 0 and any(domain in d for d in domains):
-        #     print("in site domain")
-        #
-        # if option == 1 and domains[0] in seedData[2]:
-        #     print("in site domain")
-
-
-        # TODO check HTML content
-        if seedData[3] is None:
-            # binary data
-            sql = """update crawldb.page set page_type_code=%s, html_content=%s where id=%s"""
-            cur.execute(sql, ('BINARY', None, seedData[0]))
-            conn.commit()
+        if page[3] is None:
+            # update record in DB
+            updateFonrtierStatus(conn, 'BINARY', page[0])
 
             # call function to process binary data type
-            processBinaryData(seedData[2], seedData[0], conn)
+            processBinaryData(page[2], page[0], conn)
         else:
-            # html data
-            sql = """update crawldb.page set page_type_code=%s where id=%s"""
-            cur.execute(sql, ('HTML', seedData[0]))
-            conn.commit()
+            # update record in DB
+            updateFonrtierStatus(conn, 'HTML', page[0])
 
             # beautify html content
-            rawHtml = BeautifulSoup(str(seedData[3]), 'html.parser')
+            rawHtml = BeautifulSoup(str(page[3]), 'html.parser')
 
-            # find images first, otherwise cralwer will process fist all the links in the forntier
-            # -> images will come at end (might never be extracted at all)
-
-            # extract images from rawHtml | seedData[0] is current_page_id
-            # let's assume there is FULL image URL in img tag
             for imageObject in rawHtml.find_all('img'):
                 imageSrc = str(imageObject.get('src'))
-                # print(imageSrc)
-                # process image using processImg function
 
                 if 'http' not in imageSrc:
-                    urlParts = urlparse(seedData[2])
+                    urlParts = urlparse(page[2])
                     imageSrc = urlParts.scheme + '://' + urlParts.netloc + imageSrc
-                processImg(imageSrc, seedData[0], conn)
+                processImg(imageSrc, page[0], conn)
 
-            # should there be single foor loop with 2 conditions
-            # for <a href> and <img>?
-            # extract links <a href ... >
             for link in rawHtml.find_all('a', href=True):
-                # print(link.get('href'))
                 url = str(link.get('href'))
 
                 # transform /si -> https://e-uprava.gov.si/si
                 if 'http' not in url:
-                    urlParts = urlparse(seedData[2])
+                    urlParts = urlparse(page[2])
                     if not url.startswith('/') and not url.startswith('#'):
                         url = urlParts.scheme + '://' + urlParts.netloc + '/' + url
                     else:
                         url = urlParts.scheme + '://' + urlParts.netloc + url
-                # print(url)
 
                 # add url to frontier
                 nextPageId = processFrontier(url, option, domains, conn)
-                currPageId = seedData[5]
+                currPageId = page[0]
 
                 if nextPageId is not None:
                     insertLink(currPageId, nextPageId, conn)
                 else:
                     insertLink(currPageId, currPageId, conn)
-
-    except (Exception, psycopg2.DatabaseError) as error:
+    except Exception as error:
         print(error)
-    # finally:
-    #    if conn is not None:
-    #        conn.close()

@@ -1,21 +1,85 @@
+import threading
 import psycopg2
 import datetime
-from db.config import config
 
 __all__ = ["getFrontier", "getSiteId", "insertPage", "insertLink",
-           "getPageId", 'getCanonUrl', 'getRobots']
+           "getPageId", 'getCanonUrl', 'getRobots', "updateFonrtierStatus",
+           "insertBinary", "insertImage", "popFirstSeed", "insertSite"]
+
+threaded_postgreSQL_pool = None
+threadLock = threading.Lock()
+
+
+def updateFonrtierStatus(conn, status, seedID):
+    try:
+        cur = conn.cursor()
+        if status == 'BINARY':
+            sql = """update crawldb.page set page_type_code=%s, html_content=%s where id=%s"""
+            cur.execute(sql, ('BINARY', None, seedID))
+        else:
+            sql = """update crawldb.page set page_type_code=%s where id=%s"""
+            cur.execute(sql, ('HTML', seedID))
+        conn.commit()
+
+    except (Exception, psycopg2.DatabaseError) as error:
+        print(error)
+        conn.rollback()
+
+
+def insertBinary(conn, seedID, dataType, urlData):
+    try:
+        cur = conn.cursor()
+        # obtaing data_type_code from binary file
+        sql = """select code from crawldb.data_type where code like %s"""
+        cur.execute(sql, (dataType.split('.')[1].upper(),))
+        extension = cur.fetchone()
+        if extension is not None:
+            sql = """INSERT INTO crawldb.page_data(page_id, data_type_code, data)
+                                VALUES (%s, %s, %s);"""
+            cur.execute(sql, (seedID, extension, psycopg2.Binary(urlData.content)))
+            conn.commit()
+
+    except (Exception, psycopg2.DatabaseError) as error:
+        print(error)
+        conn.rollback()
+
+
+def insertImage(conn, seedID, imageName, imageContentType, imageBytes):
+    try:
+        cur = conn.cursor()
+        sql = """INSERT INTO crawldb.image(page_id, filename, content_type, data, accessed_time)
+                             VALUES (%s,%s, %s, %s, %s);"""
+        cur.execute(sql, (seedID, imageName, imageContentType, imageBytes.getvalue(), datetime.datetime.now()))
+        conn.commit()
+
+    except (Exception, psycopg2.DatabaseError) as error:
+        print(error)
+        conn.rollback()
+
+
+def popFirstSeed(conn):
+    try:
+        threadLock.acquire()
+        cur = conn.cursor()
+        sql = """update crawldb.page set page_type_code=%s
+                 where id=(select id from crawldb.page where page_type_code=%s LIMIT 1)
+                 returning id, site_id, url, html_content"""
+        cur.execute(sql, (None, 'FRONTIER'))
+        conn.commit()
+        pageID = cur.fetchone()
+        threadLock.release()
+        return pageID
+
+    except (Exception, psycopg2.DatabaseError) as error:
+        threadLock.release()
+        print(error)
+        conn.rollback()
+
 
 def getFrontier(conn):
-    # conn = None
     try:
-    #    params = config()
-    #    conn = psycopg2.connect(**params)
-
-        # create a cursor
         cur = conn.cursor()
-
         sql = """SELECT id FROM crawldb.page WHERE page_type_code='FRONTIER'"""
-
         cur.execute(sql)
         data = cur.fetchall()
         cur.close()
@@ -23,19 +87,11 @@ def getFrontier(conn):
 
     except (Exception, psycopg2.DatabaseError) as error:
         print(error)
-    # finally:
-    #    if conn is not None:
-    #        conn.close()
+
 
 def getSiteId(domain, conn):
-    # conn = None
     try:
-    #    params = config()
-    #    conn = psycopg2.connect(**params)
-
-        # create a cursor
         cur = conn.cursor()
-
         sql = """SELECT id FROM crawldb.site WHERE domain=%s"""
         cur.execute(sql, (domain,))
         data = cur.fetchone()
@@ -44,19 +100,11 @@ def getSiteId(domain, conn):
 
     except (Exception, psycopg2.DatabaseError) as error:
         print(error)
-    #finally:
-    #    if conn is not None:
-    #        conn.close()
+
 
 def getPageId(url, conn):
-    # conn = None
     try:
-    #    params = config()
-    #    conn = psycopg2.connect(**params)
-
-        # create a cursor
         cur = conn.cursor()
-
         sql = """SELECT id FROM crawldb.page WHERE url=%s"""
         cur.execute(sql, (url,))
         data = cur.fetchone()[0]
@@ -65,67 +113,41 @@ def getPageId(url, conn):
 
     except (Exception, psycopg2.DatabaseError) as error:
         print(error)
-    # finally:
-    #    if conn is not None:
-    #        conn.close()
 
-def insertPage(pageData, conn):
-    #conn = None
+
+def insertPage(conn, site, pageTypeCode, seed, htmlContent, status_code, datetime, htmlHash, seedCanonicalization):
     try:
-    #    params = config()
-    #    conn = psycopg2.connect(**params)
-
-        # create a cursor
         cur = conn.cursor()
-
-        sql = """INSERT INTO crawldb.page(site_id, page_type_code, url, html_content, http_status_code, accessed_time) 
-                        VALUES(%s, %s, %s, %s, %s, %s);"""
-        cur.execute(sql, (getSiteId(pageData[0]), pageData[1], pageData[2], pageData[3], pageData[4], datetime.datetime.now()))
+        sql = """INSERT INTO crawldb.page(site_id, page_type_code, url, html_content, http_status_code, accessed_time, hash, canon_url) 
+               VALUES(%s, %s, %s, %s, %s, %s, %s, %s) RETURNING id;"""
+        cur.execute(sql, (site, pageTypeCode, seed, htmlContent, status_code, datetime, htmlHash, seedCanonicalization))
+        nextPageId = cur.fetchone()[0]
         conn.commit()
-
         cur.close()
+        return nextPageId
 
-    except (Exception, psycopg2.DatabaseError) as error:
-        print(error)
-    # finally:
-    #    if conn is not None:
-    #        conn.close()
+    except (Exception, psycopg2.IntegrityError, psycopg2.DatabaseError) as error:
+        #print(error)
+        conn.rollback()
+        return None
+
 
 def insertLink(link1, link2, conn):
     try:
-        # params = config()
-        # conn = psycopg2.connect(**params)
-
-        # create a cursor
         cur = conn.cursor()
-
         sql = """INSERT INTO crawldb.link(from_page, to_page) 
                             VALUES(%s, %s);"""
         cur.execute(sql, (link1, link2))
         conn.commit()
 
-        # cur.close()
-
     except (Exception, psycopg2.DatabaseError) as error:
-        #print(error)
-        # ce faila, naj bo rollback(), cene se use pokvar :s
         conn.rollback()
-    # finally:
-    #    if conn is not None:
-    #        conn.close()
 
 
 def getCanonUrl(url, conn):
-    # conn = None
     try:
-        # params = config()
-        # conn = psycopg2.connect(**params)
-
-        # create a cursor
         cur = conn.cursor()
-
         sql = """SELECT id FROM crawldb.page WHERE canon_url=%s"""
-
         cur.execute(sql, (url,))
         data = cur.fetchone()
         cur.close()
@@ -133,19 +155,11 @@ def getCanonUrl(url, conn):
 
     except (Exception, psycopg2.DatabaseError) as error:
         print(error)
-    # finally:
-    #    if conn is not None:
-    #        conn.close()
+
 
 def getRobots(siteId, conn):
-    #conn = None
     try:
-    #    params = config()
-    #    conn = psycopg2.connect(**params)
-
-        # create a cursor
         cur = conn.cursor()
-
         sql = """SELECT robots_content FROM crawldb.site WHERE id=%s"""
         cur.execute(sql, (siteId,))
         data = cur.fetchone()[0]
@@ -154,6 +168,19 @@ def getRobots(siteId, conn):
 
     except (Exception, psycopg2.DatabaseError) as error:
         print(error)
-    # finally:
-    #    if conn is not None:
-    #        conn.close()
+
+
+def insertSite(conn, domain, robots, sitemap):
+    try:
+        cur = conn.cursor()
+        sql = """INSERT INTO crawldb.site(domain, robots_content, sitemap_content) 
+                    SELECT %s, %s, %s
+                    WHERE NOT EXISTS (
+                    SELECT 1 FROM crawldb.site WHERE domain=%s
+                );"""
+        cur.execute(sql, (domain, robots, sitemap, domain))
+        conn.commit()
+
+    except (Exception, psycopg2.DatabaseError) as error:
+        print(error)
+        conn.rollback()

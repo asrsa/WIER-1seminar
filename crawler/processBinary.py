@@ -1,6 +1,7 @@
-import psycopg2
+import os
 import requests
-from db.config import config
+import wget
+from db.dblib import insertBinary
 
 includeBinary = ['.pdf', '.doc', '.ppt', '.docx', '.pptx']
 
@@ -12,30 +13,14 @@ def processBinaryData(seed, seedID, conn):
     for dataType in includeBinary:
         if dataType in seed:
             urlData = requests.get(seed)
-
-            # conn = None
             try:
-                # params = config()
-                # conn = psycopg2.connect(**params)
+                # save binary into DB
+                insertBinary(conn, seedID, dataType, urlData)
 
-                # create a cursor
-                cur = conn.cursor()
+                # dowload file
+                if not os.path.exists('media\\' + str(seedID)):
+                    os.mkdir('media\\' + str(seedID))
+                wget.download(seed, out=str('media\\' + str(seedID) + '\\'))
 
-                # obtaing data_type_code from binary file
-                sql = """select code from crawldb.data_type where code like %s"""
-                cur.execute(sql, (dataType.split('.')[1].upper(), ))
-                extension = cur.fetchone()
-                if extension is None:
-                    # extension not recognized -> raise error?
-                    print("error")
-
-                sql = """INSERT INTO crawldb.page_data(page_id, data_type_code, data)
-                                    VALUES (%s, %s, %s);"""
-                cur.execute(sql, (seedID, extension, psycopg2.Binary(urlData.content)))
-                conn.commit()
-            except (Exception, psycopg2.DatabaseError) as error:
+            except Exception as error:
                 print(error)
-                conn.rollback()
-            # finally:
-            #    if conn is not None:
-            #        conn.close()

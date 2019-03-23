@@ -1,9 +1,9 @@
+import os
 import threading
-import time
 import psycopg2
 from psycopg2 import pool
 from crawler import processSeed
-from db.config import config
+from db.dblib import popFirstSeed
 from processFrontier import processFrontier
 
 seedPages = ['http://e-uprava.gov.si', 'http://www.evem.gov.si',
@@ -17,7 +17,6 @@ domains = seedPages
 threadsNumber = 4
 
 threaded_postgreSQL_pool = None
-threadLock = threading.Lock()
 threads = []
 
 
@@ -31,47 +30,25 @@ class customThread(threading.Thread):
     def run(self):
         seedQueueHasSeeds = True
         while seedQueueHasSeeds:
-            threadLock.acquire()
-            cur = self.conn.cursor()
-
-            # perform update just for one row and with RETURNING ID?
-
-            sql = """select id, page_type_code from crawldb.page where page_type_code=%s"""
-            cur.execute(sql, ('FRONTIER',))
-            # pageID must be passed to processSeed function!
-            # also conn object should be passing to all function too - thread has his own conn object from conn pool!
-            # Or conn object is put back to pool after every sql statement
-            # and retrieved again before every sql statement - need to have 'global' reference to conn pol then
-            # Also add seedData to function
-            # to sum all up -> processSeed(option, domains, seedData, conn)
-            seedData = cur.fetchone()
-            threadLock.release()
-            if seedData is not None:
-                print(seedData[0], end=' | ')
+            page = popFirstSeed(self.conn)
+            if page is not None:
+                print(page[0], end=' | ')
                 print(self.threadID)
-                # update site_id to duplicate so the other thread wont select the same page
-                sql = """update crawldb.page set page_type_code=%s where id=%s"""
-                cur.execute(sql, (None, seedData[0]))
-                self.conn.commit()
-                # 'poll' first seed and process it
-                processSeed(option, domains, self.conn, seedData[0])
+                processSeed(option, domains, self.conn, page)
 
             else:
                 seedQueueHasSeeds = False
-
-                # if cur.fetchone() is None:
-                #    # no more FRONTIER seeds -> seedQueue si empty
-                #    seedQueueHasSeeds = False
-                # else:
-
 
         # when thread is done, put back conn object
         print('thread finished')
         threaded_postgreSQL_pool.putconn(ps_connection)
 
 
-
 try:
+    # init media folder
+    if not os.path.exists('media'):
+        os.mkdir('media')
+
     threaded_postgreSQL_pool = pool.ThreadedConnectionPool(3, 10,
                                                            user="postgres",
                                                            password="admin",
@@ -96,11 +73,9 @@ try:
             t.start()
             threads.append(t)
 
-
     # Wait for all threads to complete
     for t in threads:
         t.join()
-
 
 except (Exception, psycopg2.DatabaseError) as error:
     print('Error while connecting to PostgreSQL', error)
