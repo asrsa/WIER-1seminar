@@ -13,30 +13,23 @@ import xml.etree.ElementTree as ET
 userAgent = "Chrome/73.0.3683.75 Safari/537.36"
 
 
-def siteID(domain, conn):
-    cur = conn.cursor()
-    sql = """SELECT id FROM crawldb.site WHERE domain=%s"""
-    cur.execute(sql, (domain, ))
-    id = cur.fetchone()[0]
-    return id
-
-
 def getSitemap(robots):
     for line in robots.splitlines():
         if "sitemap" in line:
             smap = requests.get(line.split(' ')[1])
             return smap.text
 
-def processSitemap(option, domains, conn, sitemap):
+
+def processSitemap(option, domains, sitemap):
     root = ET.fromstring(sitemap)
     print("Started Sitemap")
     for url in root:
         # print(url[0].text)
-        processFrontier(url[0].text, option, domains, conn)
+        processFrontier(url[0].text, option, domains)
     print("Finished sitemap")
 
 
-def processFrontier(seed, option, domains, conn):
+def processFrontier(seed, option, domains):
     # Remove 'www.' from seeds
     seed = seed.replace('www.', '')
     print('Processing ' + seed)
@@ -70,7 +63,7 @@ def processFrontier(seed, option, domains, conn):
         parsed_uri = urlparse(seed)
         domain = '{uri.netloc}'.format(uri=parsed_uri)
 
-        if getSiteId(domain, conn) is None:
+        if getSiteId(domain) is None:
             responseRobots = requests.get(parsed_uri[0] + '://' + domain + '/robots.txt')
             if responseRobots.status_code == 200:
                 robots = responseRobots.text
@@ -83,15 +76,15 @@ def processFrontier(seed, option, domains, conn):
             if sitemap is not None:
                 sitemap = sitemap.replace('\x00', '')
 
-            insertSite(conn, domain, robots, sitemap)
+            insertSite(domain, robots, sitemap)
 
             if sitemap is not None:
                 # PROCESS SITEMAP
-                processSitemap(option, domains, conn, sitemap)
+                processSitemap(option, domains, sitemap)
 
         # ROBOTS CHECK
-        site = siteID(domain, conn)
-        robots_content = getRobots(site, conn)
+        site = siteID(domain)
+        robots_content = getRobots(site)
 
         if robots_content is not None:
             rp = urllib.robotparser.RobotFileParser()
@@ -125,7 +118,7 @@ def processFrontier(seed, option, domains, conn):
                         driver.switch_to.window(windows[1])
                     if seed == driver.current_url.replace('www.', ''):
                         continue
-                    processFrontier(driver.current_url, option, domains, conn)
+                    processFrontier(driver.current_url, option, domains)
 
                     if len(windows) == 1:
                         driver.back()
@@ -145,14 +138,14 @@ def processFrontier(seed, option, domains, conn):
         # remove trailing slash: e-uprava.gov.si/ == e-uprava.gov.si
         seedCanonicalization = seedCanonicalization[:-1] if seedCanonicalization.endswith('/') else seedCanonicalization
 
-        if getCanonUrl(seedCanonicalization, conn) is not None:
+        if getCanonUrl(seedCanonicalization) is not None:
             pageTypeCode = 'DUPLICATE'
             htmlContent = None
         else:
             pageTypeCode = 'FRONTIER'
 
         # insert into table
-        nextPageId = insertPage(conn, site, pageTypeCode, seed, htmlContent, response.status_code, datetime.datetime.now(), htmlHash, seedCanonicalization)
+        nextPageId = insertPage(site, pageTypeCode, seed, htmlContent, response.status_code, datetime.datetime.now(), htmlHash, seedCanonicalization)
 
     except (WebDriverException, TimeoutException) as error:
         print(error)

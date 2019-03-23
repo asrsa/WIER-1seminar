@@ -7,7 +7,7 @@ import requests
 from db.dblib import insertImage
 
 
-def processImg(seed, seedID, conn):
+def processImg(seed, seedID):
     try:
         # calculate image_name
         urlParts = urllib.parse.urlparse(seed)
@@ -37,7 +37,7 @@ def processImg(seed, seedID, conn):
         # print(imageBytes.getvalue())               # prints b'\xff\xd8\xff\xe0\x00\x10JFIF\x00\x01...
 
         # insert image into DB
-        insertImage(conn,seedID, imageName, imageContentType, imageBytes)
+        insertImage(seedID, imageName, imageContentType, imageBytes)
 
         # download image
         if not os.path.exists('media\\' + str(seedID)):

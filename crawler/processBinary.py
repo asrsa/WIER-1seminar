@@ -6,7 +6,7 @@ from db.dblib import insertBinary
 includeBinary = ['.pdf', '.doc', '.ppt', '.docx', '.pptx']
 
 
-def processBinaryData(seed, seedID, conn):
+def processBinaryData(seed, seedID):
 
     # check if binary data is stored or not
     print('inside binary data')
@@ -15,7 +15,7 @@ def processBinaryData(seed, seedID, conn):
             urlData = requests.get(seed)
             try:
                 # save binary into DB
-                insertBinary(conn, seedID, dataType, urlData)
+                insertBinary(seedID, dataType, urlData)
 
                 # dowload file
                 if not os.path.exists('media\\' + str(seedID)):
