@@ -132,7 +132,7 @@ def processFrontier(seed, option, domains):
 
         # detect duplicator by calculating seed canonical form
         # and check if seedCanonicalization has been already visited
-        seedCanonicalization = parsed_uri.scheme + '://' + parsed_uri.netloc + parsed_uri.path
+        seedCanonicalization = parsed_uri.netloc + parsed_uri.path
         seedCanonicalization = seedCanonicalization + '?' + parsed_uri.query if parsed_uri.query != "" else seedCanonicalization
 
         # remove trailing slash: e-uprava.gov.si/ == e-uprava.gov.si

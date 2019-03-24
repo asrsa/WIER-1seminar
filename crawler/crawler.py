@@ -46,7 +46,7 @@ def processSeed(option, domains, page):
 
                 if nextPageId is not None:
                     insertLink(currPageId, nextPageId)
-                else:
-                    insertLink(currPageId, currPageId)
+                # else:
+                #     insertLink(currPageId, currPageId)
     except Exception as error:
         print(error)

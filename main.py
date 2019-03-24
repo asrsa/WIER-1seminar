@@ -7,7 +7,7 @@ from processFrontier import processFrontier
 
 seedPages = ['http://e-uprava.gov.si', 'http://www.evem.gov.si',
              'http://podatki.gov.si', 'http://e-prostor.gov.si']
-seedPages = ['http://e-uprava.gov.si']
+seedPages = ['http://e-prostor.gov.si']
 
 # option: 0 - within given site domain (save img / binary)
 #         1 - within .gov.si domain (don't save img / binary)
