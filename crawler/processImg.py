@@ -1,13 +1,15 @@
 import io
 import os
 import urllib
+from binhex import openrsrc
+
 import wget as wget
 from PIL import Image
 import requests
 from db.dblib import insertImage
 
 
-def processImg(seed, seedID):
+def processImg(seed, seedID, option):
     try:
         # calculate image_name
         urlParts = urllib.parse.urlparse(seed)
@@ -37,13 +39,17 @@ def processImg(seed, seedID):
         # print(imageBytes.getvalue())               # prints b'\xff\xd8\xff\xe0\x00\x10JFIF\x00\x01...
 
         # insert image into DB
+
+        if option == 1:
+            imageBytes = None
+
         insertImage(seedID, imageName, imageContentType, imageBytes)
 
         # download image
-        if not os.path.exists('media\\' + str(seedID)):
-            os.mkdir('media\\' + str(seedID))
-
-        wget.download(seed, out=str('media\\' + str(seedID) + '\\'))
+        if option == 0:
+            if not os.path.exists('media\\' + str(seedID)):
+                os.mkdir('media\\' + str(seedID))
+            wget.download(seed, out=str('media\\' + str(seedID) + '\\'))
 
     except (Exception, IOError) as error:
         print(error)

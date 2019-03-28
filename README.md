@@ -12,6 +12,7 @@ Required python libraries:
 * Image
 * xml.etree.ElementTree
 * selenium
+* psycopg2
 
 Selenium in this project uses [ChromeDriver](http://chromedriver.chromium.org/downloads) for the headless browser.
 

@@ -38,11 +38,11 @@ def processFrontier(seed, option, domains):
     domain = '{uri.netloc}'.format(uri=parsed_uri)
 
     if option == 0 and not any(domain in d for d in domains):
-        #print("not in site domain, skipping")
+        # print("not in site domain, skipping")
         return
 
     if option == 1 and not domains[0] in seed:
-        #print("not in site domain, skipping")
+        # print("not in site domain, skipping")
         return
 
     chrome_options = Options()

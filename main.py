@@ -5,15 +5,22 @@ from db import dblib
 from db.dblib import popFirstSeed, closeConnectionPool
 from processFrontier import processFrontier
 
-seedPages = ['http://e-uprava.gov.si', 'http://www.evem.gov.si',
-             'http://podatki.gov.si', 'http://e-prostor.gov.si']
-seedPages = ['http://e-prostor.gov.si']
+#seedPages = ['http://e-uprava.gov.si', 'http://www.evem.gov.si',
+#            'http://podatki.gov.si', 'http://e-prostor.gov.si']
+# seedPages = ['http://www.evem.gov.si', 'http://e-prostor.gov.si']
+#seedPages = ['http://podatki.gov.si']
+
+# custom seeds
+
+seedPages = ['http://www.mgrt.gov.si/','http://www.mz.gov.si/',
+             'http://www.uvps.gov.si/','http://www.mju.gov.si/',
+             'http://www.osha.mddsz.gov.si/']
 
 # option: 0 - within given site domain (save img / binary)
 #         1 - within .gov.si domain (don't save img / binary)
-option = 0
-domains = seedPages
-threadsNumber = 4
+option = 1
+domains = ['.gov.si']
+threadsNumber = 8
 threads = []
 
 

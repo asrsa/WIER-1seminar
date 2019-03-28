@@ -13,7 +13,7 @@ def processSeed(option, domains, page):
             updateFonrtierStatus('BINARY', page[0])
 
             # call function to process binary data type
-            processBinaryData(page[2], page[0])
+            processBinaryData(page[2], page[0], option)
         else:
             # update record in DB
             updateFonrtierStatus('HTML', page[0])
@@ -27,7 +27,7 @@ def processSeed(option, domains, page):
                 if 'http' not in imageSrc:
                     urlParts = urlparse(page[2])
                     imageSrc = urlParts.scheme + '://' + urlParts.netloc + imageSrc
-                processImg(imageSrc, page[0])
+                processImg(imageSrc, page[0], option)
 
             for link in rawHtml.find_all('a', href=True):
                 url = str(link.get('href'))
