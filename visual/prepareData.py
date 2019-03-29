@@ -24,15 +24,15 @@ try:
 
     # fetch all
     print('\n')
-    cur.execute("SELECT * FROM crawldb.page \n" +
-                "WHERE page_type_code = 'HTML'")
+    cur.execute("SELECT * FROM crawldb.page")
     rows = cur.fetchall()
     for row in rows:
         print(str(row[3]) + " -- " + str(row[1]) + " -- " + str(row[0]))
 
         data['nodes'].append({
-            'id': str(row[3]),
-            'group': str(row[1])
+            'id': str(row[0]),
+            'group': str(row[1]),
+            'url': str(row[3])
         })
 
 

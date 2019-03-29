@@ -41,11 +41,11 @@ def processSeed(option, domains, page):
                         url = urlParts.scheme + '://' + urlParts.netloc + url
 
                 # add url to frontier
-                nextPageId = processFrontier(url, option, domains)
+                nextPageId = processFrontier(url, option, domains, page[0])
                 currPageId = page[0]
 
-                if nextPageId is not None:
-                    insertLink(currPageId, nextPageId)
+                # if nextPageId is not None:
+                #     insertLink(currPageId, nextPageId)
                 # else:
                 #     insertLink(currPageId, currPageId)
     except Exception as error:

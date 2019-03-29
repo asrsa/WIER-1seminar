@@ -20,16 +20,16 @@ def getSitemap(robots):
             return smap.text
 
 
-def processSitemap(option, domains, sitemap):
+def processSitemap(option, domains, sitemap, currPageId):
     root = ET.fromstring(sitemap)
     print("Started Sitemap")
     for url in root:
         # print(url[0].text)
-        processFrontier(url[0].text, option, domains)
+        processFrontier(url[0].text, option, domains, currPageId)
     print("Finished sitemap")
 
 
-def processFrontier(seed, option, domains):
+def processFrontier(seed, option, domains, currPageId):
     # Remove 'www.' from seeds
     seed = seed.replace('www.', '')
     print('Processing ' + seed)
@@ -78,9 +78,9 @@ def processFrontier(seed, option, domains):
 
             insertSite(domain, robots, sitemap)
 
-            if sitemap is not None:
-                # PROCESS SITEMAP
-                processSitemap(option, domains, sitemap)
+            # if sitemap is not None:
+            #     # PROCESS SITEMAP
+            #     processSitemap(option, domains, sitemap, currPageId)
 
         # ROBOTS CHECK
         site = siteID(domain)
@@ -118,7 +118,7 @@ def processFrontier(seed, option, domains):
                         driver.switch_to.window(windows[1])
                     if seed == driver.current_url.replace('www.', ''):
                         continue
-                    processFrontier(driver.current_url, option, domains)
+                    processFrontier(driver.current_url, option, domains, currPageId)
 
                     if len(windows) == 1:
                         driver.back()
@@ -146,6 +146,14 @@ def processFrontier(seed, option, domains):
 
         # insert into table
         nextPageId = insertPage(site, pageTypeCode, seed, htmlContent, response.status_code, datetime.datetime.now(), htmlHash, seedCanonicalization)
+
+        if nextPageId is not None:
+            print(str(currPageId) + "--->" + str(nextPageId))
+            insertLink(currPageId, nextPageId)
+
+        #PROCESS SITEMAP
+        if sitemap is not None:
+            processSitemap(option, domains, sitemap, nextPageId)
 
     except (WebDriverException, TimeoutException) as error:
         print(error)
