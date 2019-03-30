@@ -7,7 +7,7 @@ from psycopg2 import pool
 __all__ = ["getSiteId", "insertPage", "insertLink",
            "getCanonUrl", 'getRobots', "updateFonrtierStatus",
            "insertBinary", "insertImage", "popFirstSeed", "insertSite",
-           "closeConnectionPool", "getSiteId", "siteID"]
+           "closeConnectionPool", "getSiteId", "siteID", "getDuplicateId"]
 
 threadLock = threading.Lock()
 
@@ -235,6 +235,22 @@ def siteID(domain):
         id = cur.fetchone()[0]
         threaded_postgreSQL_pool.putconn(ps_connection)
         return id
+    except (Exception, psycopg2.DatabaseError, pool.PoolError) as error:
+        threaded_postgreSQL_pool.putconn(ps_connection)
+        print(error)
+        ps_connection.rollback()
+
+def getDuplicateId(canon_url):
+    try:
+        ps_connection = threaded_postgreSQL_pool.getconn()
+        cur = ps_connection.cursor()
+        sql = """SELECT id FROM crawldb.page WHERE canon_url = %s AND page_type_code != 'DUPLICATE'"""
+        cur.execute(sql, (canon_url,))
+        id = cur.fetchone()[0]
+        cur.close()
+        threaded_postgreSQL_pool.putconn(ps_connection)
+        return id
+
     except (Exception, psycopg2.DatabaseError, pool.PoolError) as error:
         threaded_postgreSQL_pool.putconn(ps_connection)
         print(error)

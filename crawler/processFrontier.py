@@ -151,6 +151,12 @@ def processFrontier(seed, option, domains, currPageId):
             print(str(currPageId) + "--->" + str(nextPageId))
             insertLink(currPageId, nextPageId)
 
+        #IF DUPLICATE
+        if getCanonUrl(seedCanonicalization) is not None and nextPageId is not None:
+            duplicatePageId = getDuplicateId(seedCanonicalization)
+            insertLink(nextPageId, duplicatePageId)
+            #print(duplicatePageId)
+
         #PROCESS SITEMAP
         if sitemap is not None:
             processSitemap(option, domains, sitemap, nextPageId)
