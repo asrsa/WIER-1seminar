@@ -18,9 +18,8 @@ try:
     # create a cursor
     cur = conn.cursor()
 
-    data = {}
-    data['nodes'] = []
-    data['links'] = []
+    data = []
+
 
     # fetch all
     print('\n')
@@ -28,31 +27,31 @@ try:
     rows = cur.fetchall()
     for row in rows:
         print(str(row[3]) + " -- " + str(row[1]) + " -- " + str(row[0]))
-
-        data['nodes'].append({
-            'id': str(row[0]),
-            'group': str(row[1]),
-            'url': str(row[3]),
-            'type': str(row[2])
-        })
-
+        tmp = {}
+        tmp['name'] = str(row[0])
+        tmp['size'] = row[1]
+        tmp['url'] = str(row[8])
 
         cur.execute("SELECT * FROM crawldb.link \n" +
                     "WHERE from_page = %s", (row[0],))
         links = cur.fetchall()
+
+        tmplinks = []
         for link in links:
             print(link)
+
             if link[1] != row[0]:
-                data['links'].append({
-                    'source': link[0],
-                    'target': link[1],
-                    'value': 1
-                })
+                tmplinks.append(link[1])
+
+        tmp['imports'] = tmplinks
+
+        data.append(tmp)
+
 
     # close the communication with the PostgreSQL
     cur.close()
 
-    with open('data.json', 'w') as outfile:
+    with open('dataHive.json', 'w') as outfile:
         json.dump(data, outfile, indent=4)
 
 except (Exception, psycopg2.DatabaseError) as error:

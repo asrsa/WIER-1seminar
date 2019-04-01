@@ -76,7 +76,7 @@ d3.json("data.json", function(error, graph) {
   
 
   node.append("title")
-      .text(function(d) { return d.id; });
+      .text(function(d) { return d.url; });
 
   simulation
       .nodes(graph.nodes)
