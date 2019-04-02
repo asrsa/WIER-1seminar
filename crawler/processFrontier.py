@@ -9,6 +9,7 @@ import datetime
 import urllib.robotparser
 import time
 import xml.etree.ElementTree as ET
+import gc
 
 userAgent = "Chrome/73.0.3683.75 Safari/537.36"
 
@@ -42,7 +43,7 @@ def processFrontier(seed, option, domains, currPageId):
         return
 
     if option == 1 and not domains[0] in seed:
-        # print("not in site domain, skipping")
+        print("not in site domain, skipping")
         return
 
     chrome_options = Options()
@@ -77,10 +78,6 @@ def processFrontier(seed, option, domains, currPageId):
                 sitemap = sitemap.replace('\x00', '')
 
             insertSite(domain, robots, sitemap)
-
-            # if sitemap is not None:
-            #     # PROCESS SITEMAP
-            #     processSitemap(option, domains, sitemap, currPageId)
 
         # ROBOTS CHECK
         site = siteID(domain)
@@ -128,7 +125,9 @@ def processFrontier(seed, option, domains, currPageId):
                             driver.close()
                     driver.switch_to.window(windows[0])
 
+
         driver.quit()
+        gc.collect()
 
         # detect duplicator by calculating seed canonical form
         # and check if seedCanonicalization has been already visited
@@ -164,5 +163,8 @@ def processFrontier(seed, option, domains, currPageId):
     except (WebDriverException, TimeoutException) as error:
         print(error)
         return None
+    finally:
+        driver.quit()
+        gc.collect()
 
     return nextPageId

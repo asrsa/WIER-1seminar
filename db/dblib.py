@@ -57,8 +57,9 @@ def updateFonrtierStatus(status, seedID):
 
     except (Exception, psycopg2.DatabaseError, pool.PoolError) as error:
         print(error)
-        threaded_postgreSQL_pool.putconn(ps_connection)
         ps_connection.rollback()
+        threaded_postgreSQL_pool.putconn(ps_connection)
+
 
 
 def insertBinary(seedID, dataType, urlData):
@@ -78,8 +79,8 @@ def insertBinary(seedID, dataType, urlData):
 
     except (Exception, psycopg2.DatabaseError, pool.PoolError) as error:
         print(error)
-        threaded_postgreSQL_pool.putconn(ps_connection)
         ps_connection.rollback()
+        threaded_postgreSQL_pool.putconn(ps_connection)
 
 
 def insertImage(seedID, imageName, imageContentType, imageBytes):
@@ -94,8 +95,9 @@ def insertImage(seedID, imageName, imageContentType, imageBytes):
 
     except (Exception, psycopg2.DatabaseError, pool.PoolError) as error:
         print(error)
-        threaded_postgreSQL_pool.putconn(ps_connection)
         ps_connection.rollback()
+        threaded_postgreSQL_pool.putconn(ps_connection)
+
 
 
 def popFirstSeed():
@@ -114,10 +116,11 @@ def popFirstSeed():
         return pageID
 
     except (Exception, psycopg2.DatabaseError, pool.PoolError) as error:
+        ps_connection.rollback()
         threadLock.release()
         threaded_postgreSQL_pool.putconn(ps_connection)
         print(error)
-        ps_connection.rollback()
+
 
 
 def getSiteId(domain):
@@ -132,9 +135,9 @@ def getSiteId(domain):
         return data
 
     except (Exception, psycopg2.DatabaseError, pool.PoolError) as error:
+        ps_connection.rollback()
         threaded_postgreSQL_pool.putconn(ps_connection)
         print(error)
-        ps_connection.rollback()
 
 
 def insertPage(site, pageTypeCode, seed, htmlContent, status_code, datetime, htmlHash, seedCanonicalization):
@@ -151,9 +154,8 @@ def insertPage(site, pageTypeCode, seed, htmlContent, status_code, datetime, htm
         return nextPageId
 
     except (Exception, psycopg2.IntegrityError, psycopg2.DatabaseError, pool.PoolError) as error:
-        threaded_postgreSQL_pool.putconn(ps_connection)
-        #print(error)
         ps_connection.rollback()
+        threaded_postgreSQL_pool.putconn(ps_connection)
         return None
 
 
@@ -168,9 +170,10 @@ def insertLink(link1, link2):
         threaded_postgreSQL_pool.putconn(ps_connection)
 
     except (Exception, psycopg2.DatabaseError, pool.PoolError) as error:
+        ps_connection.rollback()
         threaded_postgreSQL_pool.putconn(ps_connection)
         print(error)
-        ps_connection.rollback()
+
 
 
 def getCanonUrl(url):
@@ -185,9 +188,10 @@ def getCanonUrl(url):
         return data
 
     except (Exception, psycopg2.DatabaseError, pool.PoolError) as error:
+        ps_connection.rollback()
         threaded_postgreSQL_pool.putconn(ps_connection)
         print(error)
-        ps_connection.rollback()
+
 
 
 def getRobots(siteId):
@@ -202,9 +206,10 @@ def getRobots(siteId):
         return data
 
     except (Exception, psycopg2.DatabaseError, pool.PoolError) as error:
+        ps_connection.rollback()
         threaded_postgreSQL_pool.putconn(ps_connection)
         print(error)
-        ps_connection.rollback()
+
 
 
 def insertSite(domain, robots, sitemap):
@@ -221,9 +226,10 @@ def insertSite(domain, robots, sitemap):
         threaded_postgreSQL_pool.putconn(ps_connection)
 
     except (Exception, psycopg2.DatabaseError, pool.PoolError) as error:
+        ps_connection.rollback()
         threaded_postgreSQL_pool.putconn(ps_connection)
         print(error)
-        ps_connection.rollback()
+
 
 
 def siteID(domain):
@@ -236,9 +242,10 @@ def siteID(domain):
         threaded_postgreSQL_pool.putconn(ps_connection)
         return id
     except (Exception, psycopg2.DatabaseError, pool.PoolError) as error:
+        ps_connection.rollback()
         threaded_postgreSQL_pool.putconn(ps_connection)
         print(error)
-        ps_connection.rollback()
+
 
 def getDuplicateId(canon_url):
     try:
@@ -252,6 +259,7 @@ def getDuplicateId(canon_url):
         return id
 
     except (Exception, psycopg2.DatabaseError, pool.PoolError) as error:
+        ps_connection.rollback()
         threaded_postgreSQL_pool.putconn(ps_connection)
         print(error)
-        ps_connection.rollback()
+

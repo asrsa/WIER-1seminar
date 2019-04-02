@@ -24,7 +24,7 @@ try:
 
     # fetch all
     print('\n')
-    cur.execute("SELECT * FROM crawldb.page")
+    cur.execute("SELECT * FROM crawldb.page WHERE site_id=131")
     rows = cur.fetchall()
     for row in rows:
         print(str(row[3]) + " -- " + str(row[1]) + " -- " + str(row[0]))
